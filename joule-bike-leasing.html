@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>Payflip · Joule bike leasing · Testable prototype</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-primary: #d44a74;
+      --color-primary-hover: #b83b62;
+      --color-strong: #0f0d28;
+      --color-text-prominent: #0f0d28;
+      --color-text-default: #50545e;
+      --color-text-muted: #8b8d96;
+      --color-text-inverted: #ffffff;
+      --color-surface: #f7f7f8;
+      --color-surface-hover: #eaeaeb;
+      --color-border-light: #eaeaeb;
+      --color-border-mid: #d4d6db;
+      --color-success-bg: #ebf9f1;
+      --color-success-text: #086343;
+      --color-warning-bg: #fff5e0;
+      --color-warning-text: #92520c;
+      --color-warning-border: #f4c77d;
+      --color-info-bg: #eef2ff;
+      --color-info-text: #1d3a8a;
+      --color-brand-bg: #fdf5f8;
+      --color-brand-bg-deep: #fbe7ee;
+      --color-brand-text: #b83b62;
+      --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    html, body {
+      font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #ffffff;
+      color: var(--color-text-prominent);
+      letter-spacing: -0.005em;
+    }
+    .ff-display { font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .ff-poppins { font-family: 'Poppins', system-ui, sans-serif; }
+    .focus-ring:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .link-underline { text-underline-offset: 3px; }
+    .nice-scroll::-webkit-scrollbar { width: 8px; }
+    .nice-scroll::-webkit-scrollbar-thumb { background: #d4d6db; border-radius: 4px; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.96) translateY(4px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+    .anim-fade { animation: fadeIn 180ms ease-out both; }
+    .anim-scale { animation: scaleIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes pageEnterForward { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pageEnterBackward { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-page-forward { animation: pageEnterForward 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-page-back { animation: pageEnterBackward 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .stagger > * { opacity: 0; animation: pageEnterForward 360ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .stagger > *:nth-child(1) { animation-delay: 60ms; }
+    .stagger > *:nth-child(2) { animation-delay: 120ms; }
+    .stagger > *:nth-child(3) { animation-delay: 180ms; }
+    .stagger > *:nth-child(4) { animation-delay: 240ms; }
+    .stagger > *:nth-child(5) { animation-delay: 300ms; }
+    @keyframes successPop { 0% { opacity: 0; transform: scale(0.4); } 55% { transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes successRing { 0% { transform: scale(0.8); opacity: 0.55; } 100% { transform: scale(1.7); opacity: 0; } }
+    @keyframes drawCheck { 0% { stroke-dashoffset: 30; opacity: 0; } 30% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+    .anim-success-pop { animation: successPop 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-success-ring { animation: successRing 1.4s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 220ms; }
+    .anim-draw-check { stroke-dasharray: 30; stroke-dashoffset: 30; animation: drawCheck 500ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 280ms; }
+    @keyframes slideReveal { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .anim-reveal { animation: slideReveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes labelSlideFwd { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes labelSlideBack { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    .anim-label-slide-fwd { animation: labelSlideFwd 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-label-slide-back { animation: labelSlideBack 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    button:active:not(:disabled) { transform: translateY(0.5px); }
+
+    /* ---- Mobile mode ---- */
+    .mobile-mode .max-w-\[1248px\] { max-width: 100% !important; }
+    .mobile-mode .max-w-\[760px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[600px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[640px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[440px\]  { max-width: 100% !important; }
+    .mobile-mode .px-6 { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .px-8 { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .flow-row > main > .px-5 { padding-left: 0 !important; padding-right: 0 !important; }
+    .mobile-mode aside { display: none !important; }
+    .mobile-mode .flow-row { flex-direction: column !important; gap: 0 !important; }
+    .mobile-bottom-bar { display: none; }
+    .mobile-mode .mobile-bottom-bar {
+      display: block; flex-shrink: 0; background: white;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--color-border-light);
+      box-shadow: 0 -4px 12px -2px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+    .mobile-mode .flow-actions-desktop { display: none !important; }
+    .mobile-only { display: none; }
+    .mobile-mode .mobile-only { display: block; }
+    .mobile-mode .desktop-only { display: none !important; }
+    .mobile-mode .howto-grid { grid-template-columns: 1fr !important; }
+    .mobile-mode .stepper-shell { padding-left: 0 !important; padding-right: 0 !important; }
+    .mobile-mode .stepper-shell p { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .stepper-bar, .mobile-mode .stepper-fill { border-radius: 0 !important; }
+    .mobile-mode .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+    .mobile-mode .modal-card {
+      border-radius: 16px 16px 0 0 !important;
+      width: 100% !important; max-width: 100% !important;
+      max-height: 85% !important; margin: 0 !important;
+      animation: drawerUp 320ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    }
+    .mobile-mode .modal-card::before {
+      content: ''; display: block; width: 36px; height: 4px; border-radius: 2px;
+      background: var(--color-border-mid); margin: 8px auto 0; flex-shrink: 0;
+    }
+    @keyframes drawerUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    /* ---- Phone frame ---- */
+    .device-bezel {
+      background: #1f2937; padding: 8px; border-radius: 36px;
+      box-shadow: 0 12px 40px rgba(15,13,40,0.18), 0 2px 8px rgba(15,13,40,0.08);
+    }
+    .device-screen {
+      background: white; border-radius: 28px; overflow: hidden;
+      width: 390px; height: calc(100vh - 80px);
+      transform: translateZ(0); position: relative;
+    }
+    .mobile-mode { display: flex !important; flex-direction: column; }
+    .mobile-scroll-area { flex: 1; min-height: 0; }
+    .mobile-mode .mobile-scroll-area { overflow-y: auto; display: flex; flex-direction: column; }
+    .mobile-mode .mobile-scroll-area > div { flex: 1; display: flex; flex-direction: column; }
+
+    /* ---- Quote card — used in Select Bike step ---- */
+    .quote-card {
+      border: 1.5px solid var(--color-border-light);
+      border-radius: 14px; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: white;
+    }
+    .quote-card:hover { border-color: var(--color-border-mid); }
+    .quote-card.selected { border-color: var(--color-primary) !important; background: #fdf5f8 !important; }
+    .quote-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--color-success-bg); color: var(--color-success-text);
+      font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+      border-radius: 100px; padding: 2px 8px;
+    }
+    .quote-badge.expired {
+      background: var(--color-surface); color: var(--color-text-muted);
+    }
+
+    /* ---- Joule logo wordmark ---- */
+    .joule-wm {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+      color: #0f0d28; display: inline-flex; align-items: center;
+    }
+    .joule-wm-sm {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 14px; letter-spacing: -0.5px;
+      color: #0f0d28; display: inline-flex; align-items: center;
+    }
+    .joule-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c9a8; margin: 0 1px 3px; }
+    .joule-dot-sm { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #22c9a8; margin: 0 0.5px 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim-page-forward, .anim-page-back, .anim-fade, .anim-scale,
+      .anim-success-pop, .anim-success-ring, .anim-draw-check,
+      .anim-reveal, .anim-label-slide-fwd, .anim-label-slide-back, .stagger > * {
+        animation: none !important;
+      }
+      * { transition-duration: 0.01ms !important; }
+    }
+    @media print { .moderator-panel { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef } = React;
+
+    /* =========================================================================
+       Icons
+    ========================================================================= */
+    const Icon = ({ d, size = 16, stroke = 1.5, fill = 'none', viewBox = '0 0 24 24', className = '', style = {} }) => (
+      <svg width={size} height={size} viewBox={viewBox} fill={fill} stroke="currentColor"
+        strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round"
+        className={className} aria-hidden="true" style={style}>
+        {d}
+      </svg>
+    );
+    const ICONS = {
+      check:       <path d="M20 6 9 17l-5-5" />,
+      x:           <><path d="M18 6 6 18" /><path d="m6 6 12 12" /></>,
+      arrowLeft:   <><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></>,
+      arrowRight:  <><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>,
+      info:        <><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>,
+      trendingUp:  <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></>,
+      chevron:     <path d="m6 9 6 6 6-6" />,
+      sparkle:     <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />,
+      externalLink:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></>,
+      bike:        <><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="18.5" cy="17.5" r="3.5" /><path d="M15 6a1 1 0 0 0-1 1v0M6 17.5h7l3-5.5-3-5H9l3 5.5" /></>,
+      pencil:      <><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" /></>,
+      trash:       <><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></>,
+    };
+
+    /* =========================================================================
+       Data
+    ========================================================================= */
+    const QUOTES = [
+      {
+        id: 'S10209',
+        name: 'Batavus Finez E-go Power Exclusive Plus BES3 – 500Wh',
+        shortName: 'Batavus Finez E-go Power',
+        category: 'E-bike · High step',
+        monthlyPrice: 163.08,
+        annualImpact: 1956.96,
+        advantage: 4288.78,
+        netCashImpactPerYear: 527.37,
+        period: 36,
+        url: 'https://clients.joule.be/nl_BE/offertes/S10209',
+      },
+      {
+        id: 'S10110',
+        name: 'Ellio Elite Comfort 1150Wh – 25% Discount',
+        shortName: 'Ellio Elite Comfort 1150Wh',
+        category: 'E-bike · Speed pedelec',
+        monthlyPrice: 275.71,
+        annualImpact: 3308.52,
+        advantage: 7250,
+        netCashImpactPerYear: 890.45,
+        period: 36,
+        url: 'https://clients.joule.be/nl_BE/offertes/S10110',
+      },
+    ];
+
+    // The "new" quote that appears after the user clicks Open Joule Portal
+    const PENDING_QUOTE = {
+      id: 'S10311',
+      name: 'Canyon Commuter:ON 7 E-Bike – 2026',
+      shortName: 'Canyon Commuter:ON 7',
+      category: 'E-bike · City',
+      monthlyPrice: 118.45,
+      annualImpact: 1421.40,
+      advantage: 3113.68,
+      netCashImpactPerYear: 384.23,
+      period: 36,
+      url: 'https://clients.joule.be/nl_BE/offertes/S10311',
+    };
+    const STEPPER_LABELS = ['Select bike', 'Choose budget'];
+    const STEPPER_TOTAL = 2;
+    const EOY_BUDGET = 150000;
+    const fmt = (n) => n.toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    /* =========================================================================
+       Primitives — exact copies from pension savings
+    ========================================================================= */
+    const Button = ({ variant = 'primary', size = 'md', children, disabled, onClick, className = '', leftIcon, rightIcon, type = 'button' }) => {
+      const base = 'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold transition focus-ring whitespace-nowrap';
+      const sizes = { sm: 'h-9 px-3 text-sm', md: 'h-10 px-4 text-[15px]', lg: 'h-11 px-5 text-base' };
+      const variants = {
+        primary: 'text-white shadow-sm',
+        secondary: 'bg-white border border-[var(--color-border-mid)] text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        ghost: 'bg-transparent text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        link: 'h-auto p-0 underline text-[var(--color-text-prominent)] hover:opacity-70',
+      };
+      const style = variant === 'primary' ? { background: disabled ? '#e5b6c5' : 'var(--color-primary)' } : {};
+      return (
+        <button type={type} onClick={onClick} disabled={disabled}
+          className={`${base} ${variants[variant]} ${variant === 'link' ? '' : sizes[size]} ${disabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'} ${className}`}
+          style={style}>
+          {leftIcon}{children}{rightIcon}
+        </button>
+      );
+    };
+
+    const Pill = ({ children, tone = 'neutral' }) => {
+      const tones = {
+        neutral: 'bg-[var(--color-surface)] text-[var(--color-text-prominent)]',
+        success: 'bg-[var(--color-success-bg)] text-[var(--color-success-text)]',
+        warning: 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)]',
+        brand: 'bg-[var(--color-brand-bg)] text-[var(--color-brand-text)]',
+      };
+      return <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ${tones[tone]}`}>{children}</span>;
+    };
+
+    const Checkbox = ({ checked, onChange, children, id }) => (
+      <label htmlFor={id} className="flex items-start gap-3 cursor-pointer select-none">
+        <button id={id} type="button" onClick={() => onChange(!checked)}
+          className="w-5 h-5 rounded shrink-0 flex items-center justify-center transition mt-0.5 focus-ring"
+          role="checkbox" aria-checked={checked}
+          style={{ border: `1.5px solid ${checked ? 'var(--color-primary)' : 'var(--color-border-mid)'}`, background: checked ? 'var(--color-primary)' : 'white' }}>
+          {checked && <Icon d={ICONS.check} size={12} stroke={3} className="text-white" />}
+        </button>
+        <span className="text-sm leading-6 text-[var(--color-text-prominent)]">{children}</span>
+      </label>
+    );
+
+    const RichRadio = ({ selected, disabled, onClick, title, sub, right }) => (
+      <button onClick={onClick} disabled={disabled}
+        className={`group flex items-center gap-3 px-4 py-3.5 rounded-xl text-left w-full transition ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+        style={{ border: `1.5px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-light)'}`, background: selected ? '#fdf5f8' : 'white' }}>
+        <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center"
+          style={{ border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-mid)'}` }}>
+          {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-primary)' }} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-base font-medium leading-6 text-[var(--color-text-prominent)]">{title}</div>
+          <div className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{sub}</div>
+        </div>
+        <div className="text-sm font-medium text-[var(--color-text-default)] tabular-nums shrink-0">{right}</div>
+      </button>
+    );
+
+    const CollapsedCard = ({ label, value, onEdit }) => (
+      <div className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+        style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+        <div className="min-w-0">
+          <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">{label}</div>
+          <div className="text-base font-medium mt-0.5 truncate">{value}</div>
+        </div>
+        <Button variant="secondary" size="sm" onClick={onEdit}>Edit</Button>
+      </div>
+    );
+
+    const Row = ({ label, value, bold }) => (
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[var(--color-text-default)] text-[13px]">{label}</span>
+        <span className={`text-[13px] tabular-nums ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-prominent)]'}`}>{value}</span>
+      </div>
+    );
+
+    const MobileBottomBar = ({ children }) => <div className="mobile-bottom-bar">{children}</div>;
+    const BottomBarSplit = ({ infoTop, infoMain, infoSub, helper, action }) => (
+      <div className="flex items-center gap-6">
+        <div className="flex-1 flex flex-col justify-center min-h-[48px] gap-0.5 min-w-0">
+          {infoTop && <div className="text-[11px] font-medium text-[var(--color-text-default)] tracking-[0.04em] uppercase">{infoTop}</div>}
+          {infoMain && <div className="ff-display font-semibold text-xl leading-7 tracking-tight text-[var(--color-text-prominent)]">{infoMain}</div>}
+          {infoSub && <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">{infoSub}</div>}
+          {helper && !infoTop && !infoMain && <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">{helper}</div>}
+        </div>
+        <div className="flex-1">{action}</div>
+      </div>
+    );
+    const BottomBarStacked = ({ helper, checkbox, action }) => (
+      <div className="flex flex-col gap-3">
+        {helper && <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">{helper}</div>}
+        {checkbox}
+        {action}
+      </div>
+    );
+
+    /* =========================================================================
+       Stepper — same progress-bar style as pension savings
+    ========================================================================= */
+    const Stepper = ({ current }) => {
+      const prevRef = useRef(current);
+      const direction = current >= prevRef.current ? 'forward' : 'back';
+      useEffect(() => { prevRef.current = current; }, [current]);
+      const stepNumber = current + 1;
+      const label = STEPPER_LABELS[current];
+      const pct = (current / STEPPER_TOTAL) * 100;
+      const pearlLeft = pct === 0 ? '0px' : `calc(${pct}% - 4px)`;
+      return (
+        <div className="w-full flex flex-col gap-3 py-4">
+          <p key={stepNumber} className={`text-xs font-semibold tracking-wide text-[var(--color-text-prominent)] ${direction === 'forward' ? 'anim-label-slide-fwd' : 'anim-label-slide-back'}`}>
+            Step {stepNumber} of {STEPPER_TOTAL} · {label}
+          </p>
+          <div className="stepper-bar relative h-1 w-full rounded-full" style={{ background: '#eaeaeb' }}>
+            <div className="stepper-fill absolute left-0 top-0 h-full rounded-full"
+              style={{ width: `${pct}%`, background: '#220a35', transition: 'width 320ms cubic-bezier(0.16, 1, 0.3, 1)' }} />
+            <div className="absolute top-1/2 w-2 h-2 rounded-full -translate-y-1/2"
+              style={{ left: pearlLeft, background: '#220a35', transition: 'left 320ms cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 0 0 4px rgba(34,10,53,0.1)' }} />
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       TopNav + MobileFlowHeader
+    ========================================================================= */
+    const TopNav = ({ active = 'Benefits' }) => (
+      <header className="desktop-only h-[60px] flex items-center justify-between px-8 sticky top-0 z-30 bg-white"
+        style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+        <div className="flex items-center gap-2 ff-display">
+          <div className="w-8 h-7 relative">
+            <svg viewBox="0 0 33 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <path d="M0 0 H10 V17 H0 Z M13 0 H22 V8 H13 Z M13 9 H22 V17 H13 Z M25 0 H33 V17 H25 Z" fill="#0f0d28" />
+            </svg>
+          </div>
+          <span className="font-bold text-[22px] tracking-tight">Payflip</span>
+        </div>
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+          {['Home', 'Benefits', 'Salary', 'Budget'].map((item) => (
+            <button key={item} className={`text-sm font-medium py-1.5 transition ${item === active ? 'text-[var(--color-text-prominent)] border-b-2 border-black' : 'text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)]'}`}>{item}</button>
+          ))}
+        </nav>
+        <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm" style={{ background: 'var(--color-surface-hover)' }}>PT</div>
+      </header>
+    );
+
+    const MobileFlowHeader = ({ onBack, rightSlot }) => (
+      <header className="mobile-only sticky top-0 z-30 bg-white" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
+        <div className="flex items-center gap-3 p-5">
+          {onBack ? (
+            <button onClick={onBack} aria-label="Back"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:opacity-80 transition"
+              style={{ background: 'var(--color-surface)' }}>
+              <Icon d={ICONS.arrowLeft} size={18} />
+            </button>
+          ) : <div className="w-9 h-9" />}
+          {rightSlot && <div className="ml-auto">{rightSlot}</div>}
+        </div>
+      </header>
+    );
+
+    /* =========================================================================
+       FlowFrame + FlowActions
+    ========================================================================= */
+    const FlowFrame = ({ side, children }) => (
+      <div className="max-w-[1248px] mx-auto px-6 pt-6 pb-4">
+        <div className="flow-row flex gap-6">
+          <main className="flex-1 max-w-[760px]">{children}</main>
+          {side}
+        </div>
+      </div>
+    );
+    const FlowActions = ({ onBack, onNext, nextDisabled, nextLabel }) => (
+      <div className="flow-actions-desktop pt-4 pb-2 flex items-center gap-3">
+        <Button variant="secondary" onClick={onBack} leftIcon={<Icon d={ICONS.arrowLeft} size={16} />}>Back</Button>
+        <Button variant="primary" onClick={onNext} disabled={nextDisabled} rightIcon={<Icon d={ICONS.arrowRight} size={16} />}>{nextLabel}</Button>
+      </div>
+    );
+
+    /* =========================================================================
+       Timeline
+    ========================================================================= */
+    const Timeline = ({ items, firstDone = false, doneCount = null }) => {
+      // doneCount overrides firstDone: how many items (from top) are fully done
+      const resolvedDone = doneCount !== null ? doneCount : (firstDone ? 1 : 0);
+      return (
+        <div className="flex flex-col">
+          {items.map((item, i) => {
+            const isDone = i < resolvedDone;
+            const isCurrent = i === resolvedDone && resolvedDone < items.length;
+            const isLast = i === items.length - 1;
+            return (
+              <React.Fragment key={i}>
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 mt-0.5 w-4 h-4 flex items-center justify-center">
+                    {isDone ? (
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-success-text)', boxShadow: '0 0 0 4px rgba(8,99,67,0.15)' }} />
+                    ) : isCurrent ? (
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-primary)', boxShadow: '0 0 0 4px rgba(212,74,116,0.15)' }} />
+                    ) : (
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-text-muted)' }} />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-0.5 pb-0.5">
+                    <p className="text-sm leading-5 font-medium"
+                      style={{ color: isDone ? 'var(--color-success-text)' : isCurrent ? 'var(--color-text-prominent)' : 'var(--color-text-default)' }}>
+                      {item.title}
+                    </p>
+                    {item.sub && <p className="text-xs leading-4 text-[var(--color-text-muted)]">{item.sub}</p>}
+                  </div>
+                </div>
+                {!isLast && <div className="ml-2 my-1 h-5 w-px" style={{ background: 'var(--color-border-mid)' }} />}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Modal
+    ========================================================================= */
+    const Modal = ({ children, onClose, maxWidth = 480 }) => (
+      <div className="modal-overlay fixed inset-0 z-40 flex items-center justify-center anim-fade">
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div className="modal-card relative bg-white rounded-2xl anim-scale w-full mx-4 flex flex-col"
+          style={{ boxShadow: 'var(--shadow-modal)', maxWidth }}>
+          <div className="p-6 overflow-y-auto">{children}</div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       AdvantageChip (used on review side panel)
+    ========================================================================= */
+    const AdvantageChip = ({ quote }) => (
+      <div className="rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"
+        style={{ background: 'var(--color-brand-bg)', border: '1px solid var(--color-brand-bg-deep)' }}>
+        <div className="flex items-center gap-2 min-w-0" style={{ color: 'var(--color-brand-text)' }}>
+          <Icon d={ICONS.trendingUp} size={14} className="shrink-0" />
+          <span className="text-sm font-semibold truncate">+€{fmt(quote.advantage)} advantage vs cash</span>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       FAQ Accordion
+    ========================================================================= */
+    const FAQ_ITEMS = [
+      {
+        q: "Which bikes can I lease through Joule?",
+        a: "Any bike you want: city bike, e-bike, speed pedelec, cargo bike, or mountain bike. You can choose from Joule's online shop, or upload a quote from your local dealer.",
+      },
+      {
+        q: "What happens after the 36-month lease?",
+        a: "After the lease period you have the option to buy the bike at its residual value. This is typically a fraction of the original price.",
+      },
+      {
+        q: "Can I submit more than one quote?",
+        a: "Yes, you can create as many quotes as you want in Joule and compare them here. Only one can be active at a time.",
+      },
+      {
+        q: "What if I already have a quote from a local dealer?",
+        a: "You can upload a local dealer quote directly in the Joule portal. After upload it will appear here as a selectable option.",
+      },
+    ];
+
+    const FaqAccordion = () => {
+      const [openIndex, setOpenIndex] = useState(null);
+      return (
+        <div className="flex flex-col">
+          {FAQ_ITEMS.map((item, i) => (
+            <div key={i} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--color-border-light)' }}>
+              <button onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between gap-3 py-3.5 text-left hover:opacity-70 transition">
+                <span className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{item.q}</span>
+                <Icon d={ICONS.chevron} size={16} className="shrink-0 transition-transform"
+                  style={{ color: 'var(--color-text-muted)', transform: openIndex === i ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+              </button>
+              {openIndex === i && <div className="pb-4 anim-reveal"><p className="text-sm text-[var(--color-text-default)] leading-5">{item.a}</p></div>}
+            </div>
+          ))}
+          <div className="flex items-center justify-between gap-3 pt-4 mt-2" style={{ borderTop: '1px solid var(--color-border-light)' }}>
+            <span className="text-xs text-[var(--color-text-muted)]">Still have questions?</span>
+            <a href="https://help.payflip.be/en/articles/351673-bike-lease-everything-you-need-to-know"
+              target="_blank" rel="noopener noreferrer"
+              className="text-xs font-semibold underline hover:opacity-70 transition"
+              style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}>
+              Visit our Help Centre →
+            </a>
+          </div>
+        </div>
+      );
+    };
+
+    const SideSummary = ({ step, quote, onOpenCalc }) => {
+      if (step === 'intro') return null;
+
+      if (step === 'select') {
+        return (
+          <aside className="w-[416px] shrink-0">
+            <div className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}>
+              {quote ? (
+                <>
+                  <div>
+                    <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">Selected bike</div>
+                    <div className="ff-display font-semibold text-base leading-snug tracking-tight text-[var(--color-text-prominent)]">{quote.shortName}</div>
+                    <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{quote.category} · {quote.period} months</div>
+                  </div>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <div className="flex flex-col gap-2.5 text-sm">
+                    <Row label="Monthly lease (incl. VAT)" value={`€${fmt(quote.monthlyPrice)}`} />
+                    <Row label="Annual budget impact" value={`€${fmt(quote.annualImpact)}`} />
+                    <Row label="Total over 36 months" value={`€${fmt(quote.annualImpact * 3)}`} bold />
+                  </div>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <AdvantageChipWithCalc quote={quote} onOpenCalc={onOpenCalc} />
+                </>
+              ) : (
+                <div className="rounded-xl p-4 flex flex-col gap-1.5" style={{ background: 'var(--color-surface)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <Icon d={ICONS.trendingUp} size={14} style={{ color: 'var(--color-text-muted)' }} />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: 'var(--color-text-muted)' }}>
+                      Estimated advantage
+                    </span>
+                  </div>
+                  <div className="ff-display font-bold text-[28px] leading-9 tracking-tight" style={{ color: 'var(--color-text-muted)' }}>€—</div>
+                  <div className="text-xs text-[var(--color-text-default)] leading-4">Select a bike above to see your advantage.</div>
+                </div>
+              )}
+            </div>
+          </aside>
+        );
+      }
+
+      if (step === 'budget' && quote) {
+        return (
+          <aside className="w-[416px] shrink-0">
+            <div className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}>
+              <div>
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">Deducted from budget</div>
+                <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)]">
+                  €{fmt(quote.annualImpact)}<span className="text-lg font-medium text-[var(--color-text-muted)]">/year</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5 text-sm">
+                <Row label="Annual budget deduction" value={`€${fmt(quote.annualImpact)}`} />
+                <Row label="Total 36 months" value={`€${fmt(quote.annualImpact * 3)}`} bold />
+              </div>
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+              <div className="flex flex-col gap-2.5 text-sm">
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide">Funded from</div>
+                <Row label="End of Year Premium" value={`€${fmt(quote.annualImpact)}/year`} />
+                <div className="text-[11px] text-[var(--color-text-muted)] -mt-1.5 leading-4">Annual deduction, first year pro rata</div>
+              </div>
+              <AdvantageChipWithCalc quote={quote} onOpenCalc={onOpenCalc} />
+            </div>
+          </aside>
+        );
+      }
+      return null;
+    };
+
+    /* =========================================================================
+       Review side panel
+    ========================================================================= */
+    const ReviewValueCard = ({ quote, tcsAccepted, onTcsToggle, onSubmit, tcsError, onClearError, onOpenCalc }) => (
+      <aside className="w-[416px] shrink-0">
+        <div className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+          style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}>
+          <div>
+            <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">Total advantage vs cash</div>
+            <div className="ff-display font-bold text-[32px] leading-none tracking-tight" style={{ color: 'var(--color-brand-text)' }}>
+              +€{fmt(quote.advantage)}
+            </div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">over the full 36-month lease period</div>
+            <button onClick={onOpenCalc}
+              className="text-xs underline link-underline mt-2 ff-poppins hover:opacity-70 self-start"
+              style={{ color: 'var(--color-text-default)' }}>
+              How is this calculated?
+            </button>
+          </div>
+          <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+          <div className="flex flex-col gap-2.5 text-sm">
+            <Row label="Annual deduction (full years)" value={`€${fmt(quote.annualImpact)}`} />
+            <Row label="First year deduction" value="Pro rata based on start date" />
+            <Row label="Funded from" value="End of Year Premium" bold />
+          </div>
+          <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+          <div className="flex flex-col gap-2">
+            <Checkbox checked={tcsAccepted} onChange={(v) => { onTcsToggle(v); if (v && onClearError) onClearError(); }} id="tcs-accept">
+              I accept the <button type="button" onClick={(e) => e.stopPropagation()} className="underline font-medium hover:opacity-70">Terms and Conditions</button>
+            </Checkbox>
+            {tcsError && (
+              <div className="flex items-start gap-1.5 text-xs anim-reveal" style={{ color: 'var(--color-warning-text)' }}>
+                <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" />
+                <span>Please accept the terms and conditions to continue.</span>
+              </div>
+            )}
+          </div>
+          <Button variant="primary" className="w-full" onClick={onSubmit}>Submit choice</Button>
+        </div>
+      </aside>
+    );
+
+    /* =========================================================================
+       Bike calculation modal — opened from any advantage surface
+       Math: annual budget (quote.annualImpact) vs same amount taken as cash
+       Cash net rate ~27% (NSSO 13.07% + income tax on year-end premium)
+    ========================================================================= */
+    const BikeCalcModal = ({ quote, onClose }) => {
+      const annualBudget = quote.annualImpact;
+      const cashNetPerYear = quote.netCashImpactPerYear;
+      const advantagePerYear = annualBudget - cashNetPerYear;
+      const totalAdvantage = advantagePerYear * 3;
+      const nssoDeduction = Math.round(annualBudget * 0.1307);
+      const incomeAfterNsso = annualBudget - nssoDeduction;
+      const incomeTaxDeduction = incomeAfterNsso - cashNetPerYear;
+
+      return (
+        <Modal onClose={onClose} maxWidth={520}>
+          <div className="flex items-start justify-between mb-6">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight text-[var(--color-text-prominent)]">
+              Net advantage
+            </h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Here is why leasing a bike through Payflip beats taking the same budget as a cash payout.
+          </p>
+
+          {/* Comparison table */}
+          <div className="flex flex-col gap-0 mb-5">
+            {/* Column headers */}
+            <div className="grid grid-cols-[1fr_1px_1fr] mb-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)]">Cash payout</div>
+              <div />
+              <div className="text-xs font-semibold uppercase tracking-[0.06em] pl-4" style={{ color: 'var(--color-brand-text)' }}>Via Payflip (bike lease)</div>
+            </div>
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-3" />
+
+            {/* NSSO row */}
+            <div className="grid grid-cols-[1fr_1px_1fr] mb-2.5 items-start">
+              <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-default)]">
+                <span className="font-medium text-[#b91c1c]">-</span> NSSO (13.07%)
+              </div>
+              <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+              <div className="flex items-center gap-1.5 pl-4 text-sm" style={{ color: 'var(--color-success-text)' }}>
+                <Icon d={ICONS.check} size={13} stroke={2.5} />
+                <span className="font-medium">Exempt</span>
+              </div>
+            </div>
+
+            {/* Income tax row */}
+            <div className="grid grid-cols-[1fr_1px_1fr] mb-3 items-center">
+              <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-default)]">
+                <span className="font-medium text-[#b91c1c]">-</span> Income tax
+              </div>
+              <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+              <div className="flex items-center gap-1.5 pl-4 text-sm" style={{ color: 'var(--color-success-text)' }}>
+                <Icon d={ICONS.check} size={13} stroke={2.5} />
+                <span className="font-medium">Exempt</span>
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-3" />
+
+            {/* Net result row */}
+            <div className="grid grid-cols-[1fr_1px_1fr] items-baseline mb-4">
+              <div className="flex flex-col gap-0.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)]">You receive per year</div>
+                <div className="ff-display font-bold text-[18px] tabular-nums text-[var(--color-text-muted)]">
+                  ~€{fmt(cashNetPerYear)}
+                </div>
+              </div>
+              <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+              <div className="flex flex-col gap-0.5 pl-4">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.06em]" style={{ color: 'var(--color-brand-text)' }}>You receive per year</div>
+                <div className="ff-display font-bold text-[24px] tabular-nums text-[var(--color-text-prominent)]">
+                  €{fmt(annualBudget)}
+                </div>
+                <div className="text-[11px] text-[var(--color-text-muted)]">full lease value, tax-free</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-4" />
+
+          {/* Advantage summary */}
+          <div className="flex items-baseline justify-between mb-1">
+            <div className="flex flex-col gap-1">
+              <div className="text-xs font-medium uppercase tracking-[0.06em]" style={{ color: 'var(--color-brand-text)' }}>
+                Your Payflip advantage
+              </div>
+              <div className="text-xs text-[var(--color-text-muted)]">
+                +€{fmt(advantagePerYear)}/year x 3 years
+              </div>
+            </div>
+            <div className="ff-display font-bold text-[28px] leading-none tracking-tight tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+              +€{fmt(totalAdvantage)}
+            </div>
+          </div>
+
+          <div className="rounded-lg p-3 flex gap-2 items-start mt-4" style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}>
+            <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" style={{ color: 'var(--color-info-text)' }} />
+            <p className="text-xs leading-4" style={{ color: 'var(--color-info-text)' }}>
+              <span className="font-semibold">Why is bike leasing so efficient?</span> A bike lease is a benefit in kind that is fully exempt from NSSO social security contributions and income tax. Your gross budget converts to lease value at 1:1.
+            </p>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* =========================================================================
+       Reusable advantage chip with calc link
+    ========================================================================= */
+    const AdvantageChipWithCalc = ({ quote, onOpenCalc }) => (
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg"
+        style={{ background: 'var(--color-brand-bg)', border: '1px solid var(--color-brand-bg-deep)', color: 'var(--color-brand-text)' }}>
+        <div className="flex items-center gap-2">
+          <Icon d={ICONS.trendingUp} size={14} className="shrink-0" />
+          <div className="flex flex-col gap-0">
+            <span className="text-xs font-semibold">+€{fmt(quote.advantage)} net advantage vs cash</span>
+            <span className="text-[11px]" style={{ color: 'var(--color-brand-text)', opacity: 0.75 }}>over the full 36-month lease</span>
+          </div>
+        </div>
+        <button onClick={onOpenCalc}
+          className="text-xs font-medium underline shrink-0 hover:opacity-70"
+          style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}>
+          How?
+        </button>
+      </div>
+    );
+    const BIKE_TAX_SCORE = 3; // Very good: fully exempt from NSSO and income tax
+
+    const TaxScore = ({ score, onClick }) => {
+      const LEVELS = ['Neutral', 'Good', 'Very good', 'Excellent'];
+      const COLORS = { 1: '#8b8d96', 2: '#2d7dd2', 3: '#1a9e5c', 4: '#b83b62' };
+      const color = COLORS[score];
+      const label = LEVELS[score - 1];
+      return (
+        <button onClick={onClick} className="flex flex-col gap-2 text-left w-full hover:opacity-80 transition group">
+          <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)] flex items-center gap-1.5">
+            Tax score
+            <Icon d={ICONS.info} size={12} className="opacity-50 group-hover:opacity-100 transition" style={{ color: 'var(--color-text-muted)' }} />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-end gap-[3px]">
+              {[1, 2, 3, 4].map((lvl) => (
+                <div key={lvl} className="w-[10px] rounded-sm transition-all"
+                  style={{ height: 8 + lvl * 4, background: lvl <= score ? color : 'var(--color-border-mid)' }} />
+              ))}
+            </div>
+            <span className="text-base font-semibold" style={{ color }}>{label}</span>
+          </div>
+        </button>
+      );
+    };
+
+    const BikeTaxScoreModal = ({ onClose }) => {
+      const LEVELS = [
+        { score: 1, label: 'Neutral', color: '#8b8d96', desc: 'No meaningful tax advantage over a cash payout.' },
+        { score: 2, label: 'Good', color: '#2d7dd2', desc: 'NSSO-exempt, only withholding tax applies. You keep roughly 52% vs 36% as cash.' },
+        { score: 3, label: 'Very good', color: '#1a9e5c', desc: 'Fully exempt from NSSO and income tax. You receive the full lease value without any tax deduction.' },
+        { score: 4, label: 'Excellent', color: '#b83b62', desc: 'Maximum tax efficiency, e.g. warrants or meal vouchers. Close to 100% net retention.' },
+      ];
+      const current = BIKE_TAX_SCORE;
+      return (
+        <Modal onClose={onClose} maxWidth={440}>
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight text-[var(--color-text-prominent)]">Tax score explained</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Every benefit has a tax score from Neutral to Excellent, based on how much of your gross budget you actually keep net.
+          </p>
+          <div className="flex flex-col gap-2 mb-5">
+            {LEVELS.map((l) => (
+              <div key={l.score} className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition"
+                style={{ background: l.score === current ? 'var(--color-success-bg)' : 'var(--color-surface)', border: l.score === current ? '1.5px solid #6ee7b7' : '1px solid transparent' }}>
+                <div className="flex items-end gap-[2px] shrink-0 mt-0.5">
+                  {[1,2,3,4].map((lvl) => (
+                    <div key={lvl} className="w-[6px] rounded-sm" style={{ height: 5 + lvl * 3, background: lvl <= l.score ? l.color : 'var(--color-border-mid)' }} />
+                  ))}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold" style={{ color: l.color }}>{l.label}</span>
+                    {l.score === current && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: '#dcfce7', color: '#166534' }}>This benefit</span>}
+                  </div>
+                  <p className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{l.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-lg p-3 flex gap-2 items-start text-xs leading-4"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-default)' }}>
+            <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" />
+            <span>Bike leasing scores <strong>Very good</strong> because the monthly lease cost is fully exempt from NSSO contributions and income tax. Your gross budget converts to bike value at close to 1:1.</span>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* =========================================================================
+       INTRO SIDE PANEL
+    ========================================================================= */
+    const SideIntro = ({ onStart }) => {
+      const [taxScoreOpen, setTaxScoreOpen] = useState(false);
+      return (
+        <>
+          <aside className="w-[416px] shrink-0 pt-4">
+            <div className="bg-white rounded-2xl p-8 flex flex-col gap-6"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}>
+              <TaxScore score={BIKE_TAX_SCORE} onClick={() => setTaxScoreOpen(true)} />
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+              <Button variant="primary" className="w-full" onClick={onStart}>Choose this benefit</Button>
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-[var(--color-text-default)] font-medium">2 steps · about 1 minute</div>
+                <button className="text-xs font-medium text-[var(--color-text-default)] underline hover:opacity-70 transition" style={{ textUnderlineOffset: 3 }}>
+                  Terms and conditions
+                </button>
+              </div>
+            </div>
+          </aside>
+          {taxScoreOpen && <BikeTaxScoreModal onClose={() => setTaxScoreOpen(false)} />}
+        </>
+      );
+    };
+
+    /* Budget pill with hover state — shows available amount on hover */
+    const BudgetPillWithAmount = ({ label, available }) => {
+      const [hovered, setHovered] = useState(false);
+      return (
+        <div className="relative inline-flex"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-default"
+            style={{ background: hovered ? 'var(--color-surface-hover)' : 'var(--color-surface)', color: 'var(--color-text-prominent)' }}>
+            {label}
+            {hovered && (
+              <span className="tabular-nums font-semibold anim-reveal" style={{ color: 'var(--color-brand-text)' }}>
+                · {available}
+              </span>
+            )}
+          </span>
+        </div>
+      );
+    };
+
+    /* Mobile-only tax score block for intro (side panel hidden on mobile) */
+    const MobileIntroTaxScore = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="mobile-only px-5 mb-6">
+          <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+          <div
+            className="rounded-xl px-4 py-4"
+            style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+          >
+            <TaxScore score={BIKE_TAX_SCORE} onClick={() => setOpen(true)} />
+          </div>
+          {open && <BikeTaxScoreModal onClose={() => setOpen(false)} />}
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       SCREEN 0 — Intro
+    ========================================================================= */
+    const IntroScreen = ({ onStart, onOpenCalc }) => (
+      <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+        <main className="flex-1 max-w-[760px]">
+          <div className="flex flex-col gap-4 px-5 pt-4 pb-6 relative">
+            <div className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at center, rgba(212,74,116,0.10) 0%, rgba(212,74,116,0) 70%)', filter: 'blur(20px)' }} aria-hidden />
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight relative">Joule bike leasing</h1>
+            <div className="flex items-center gap-2 -mt-2 relative">
+              <span className="text-sm font-medium text-[var(--color-text-default)]">External provider</span>
+              <span className="text-[var(--color-text-muted)] text-sm">·</span>
+              <span className="text-sm font-medium text-[var(--color-text-muted)]">36-month lease</span>
+            </div>
+            <p className="text-sm leading-5 text-[var(--color-text-default)] max-w-[640px] relative">
+              A bike in the cafeteria plan? Yes please. With Joule, you can lease your dream bike. Discover the financial, functional, and ecological perks. After the 36-month lease period, you can purchase the bike at a low residual value.
+            </p>
+          </div>
+
+          {/* BudgetPills with hover amounts */}
+          <div className="px-5 flex flex-wrap gap-2 mb-6">
+            <BudgetPillWithAmount label="End of Year Premium" available="€150,000" />
+          </div>
+
+          {/* Mobile-only: Tax score in lieu of the advantage card */}
+          <MobileIntroTaxScore />
+
+          <div className="px-5 desktop-only">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            {/* Value card */}
+            <div className="rounded-2xl p-6 flex flex-col gap-4 mb-6"
+              style={{ background: 'white', border: '1px solid var(--color-border-light)', boxShadow: 'var(--shadow-card)' }}>
+              <div>
+                <div className="text-xs font-medium uppercase tracking-[0.06em] mb-1.5" style={{ color: 'var(--color-brand-text)' }}>Your Payflip advantage</div>
+                <div className="ff-display font-bold text-[36px] leading-none tracking-tight tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+                  +€4,288.78
+                </div>
+                <div className="text-sm text-[var(--color-text-default)] mt-2 leading-5">over 36 months · for the Batavus Finez E-go at €163/month</div>
+                <button onClick={onOpenCalc}
+                  className="text-xs underline link-underline mt-2 ff-poppins hover:opacity-70"
+                  style={{ color: 'var(--color-text-default)' }}>
+                  How is this calculated?
+                </button>
+              </div>
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                {[
+                  { label: 'Monthly lease', value: '€163.08', sub: 'incl. VAT' },
+                  { label: 'Annual deduction', value: '€1,956.96', sub: 'from budget' },
+                  { label: 'Lease period', value: '36 months', sub: 'then buy option' },
+                ].map(m => (
+                  <div key={m.label}>
+                    <div className="text-xs font-medium uppercase tracking-wide text-[var(--color-text-default)] mb-1">{m.label}</div>
+                    <div className="ff-display font-bold text-base text-[var(--color-text-prominent)]">{m.value}</div>
+                    <div className="text-xs text-[var(--color-text-muted)]">{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+          </div>
+
+          {/* How it works */}
+          <div className="px-5 pt-2 pb-6">
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-6 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>How it works
+            </h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-6 howto-grid">
+              {[
+                { n: 1, title: 'Login to Joule', body: 'Register via the "Login to Joule" button. Payflip automatically logs you in. No separate account needed.' },
+                { n: 2, title: 'Find your dream bike', body: "Browse Joule's online shop or upload a quote from your local dealer. Get a bike leasing quote for exactly the bike you want." },
+                { n: 3, title: 'Create quotes in Joule Portal', body: "Simulate as many quotes as you want in Joule. Find all your quotes at a glance. They will appear directly in Payflip." },
+                { n: 4, title: 'Select & confirm here', body: 'Pick your favourite quote, assign your budget, and submit. Your employer reviews and approves. then your bike is automatically ordered..' },
+              ].map(s => (
+                <div key={s.n} className="flex gap-4 items-start">
+                  <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm ff-poppins font-medium"
+                    style={{ background: 'var(--color-strong)' }}>{s.n}</div>
+                  <div>
+                    <div className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{s.title}</div>
+                    <div className="text-sm text-[var(--color-text-default)] leading-5 mt-0.5">{s.body}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FAQs */}
+          <div className="px-5 pb-8">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>FAQs
+            </h2>
+            <FaqAccordion />
+          </div>
+        </main>
+        <SideIntro onStart={onStart} />
+      </div>
+    );
+
+    /* =========================================================================
+       SCREEN 1 — Select bike (configure sub-step 1)
+    ========================================================================= */
+    const QuoteCard = ({ quote, selected, onSelect, onDeselect, onDelete }) => (
+      <button onClick={() => onSelect(quote)}
+        className={`quote-card w-full text-left px-5 py-4 ${selected ? 'selected' : ''}`}>
+        <div className="flex items-start gap-3">
+          <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center mt-0.5"
+            style={{ border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-mid)'}` }}>
+            {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-primary)' }} />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="text-base font-semibold text-[var(--color-text-prominent)] leading-snug">{quote.name}</div>
+                <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{quote.category} · Order {quote.id}</div>
+              </div>
+              <span className="quote-badge shrink-0 mt-0.5">Active quote</span>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              {[
+                { label: 'Monthly lease', value: `€${fmt(quote.monthlyPrice)}`, sub: 'incl. VAT' },
+                { label: 'Annual deduction', value: `€${fmt(quote.annualImpact)}`, sub: 'year 1 of 3, pro rata' },
+                { label: 'Total advantage', value: `+€${fmt(quote.advantage)}`, sub: 'full 36-month lease', brand: true },
+              ].map(m => (
+                <div key={m.label}>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide mb-0.5 text-[var(--color-text-muted)]">{m.label}</div>
+                  <div className={`text-sm font-bold tabular-nums ${m.brand ? '' : 'text-[var(--color-text-prominent)]'}`}
+                    style={m.brand ? { color: 'var(--color-brand-text)' } : {}}>{m.value}</div>
+                  <div className="text-[11px] text-[var(--color-text-muted)]">{m.sub}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-3 flex items-center justify-between gap-2" style={{ borderTop: '1px solid var(--color-border-light)' }}>
+              <a href={quote.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                className="text-xs font-semibold underline link-underline hover:opacity-70 flex items-center gap-1"
+                style={{ color: 'var(--color-brand-text)' }}>
+                View quote in Joule
+                <Icon d={ICONS.externalLink} size={11} />
+              </a>
+              <button
+                onClick={e => { e.stopPropagation(); onDelete(quote.id); }}
+                className="text-xs font-medium text-[var(--color-text-muted)] hover:text-[#b91c1c] flex items-center gap-1 transition"
+                title="Remove this quote from Payflip">
+                <Icon d={ICONS.trash} size={12} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </button>
+    );
+
+    const JouleLoginCard = ({ emptyState = false, onOpenJoule, jouleLoading }) => (
+      <div className={`rounded-xl p-5 flex flex-col gap-3 ${emptyState ? '' : 'mt-1'}`}
+        style={{ border: `1.5px ${emptyState ? 'solid' : 'dashed'} var(--color-border-mid)`, background: emptyState ? 'white' : 'var(--color-surface)' }}>
+        <div className="flex items-center gap-3">
+          <span className="joule-wm-sm">J<span className="joule-dot-sm" />ULE</span>
+          <div className="text-sm font-semibold text-[var(--color-text-prominent)]">
+            {emptyState ? 'No quotes yet' : 'Want to quote a different bike?'}
+          </div>
+        </div>
+        <p className="text-sm text-[var(--color-text-default)] leading-5">
+          {emptyState
+            ? "Create a quote in the Joule portal to get started. Browse the online shop or upload a quote from your local dealer. It will appear here automatically."
+            : "Browse the Joule shop or upload a quote from your local dealer. New quotes appear here automatically."}
+        </p>
+        <button
+          onClick={onOpenJoule}
+          disabled={jouleLoading}
+          className="self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition hover:opacity-80"
+          style={{ background: jouleLoading ? 'var(--color-border-light)' : 'var(--color-surface-hover)', color: jouleLoading ? 'var(--color-text-muted)' : 'var(--color-text-prominent)', cursor: jouleLoading ? 'default' : 'pointer' }}>
+          {jouleLoading ? (
+            <>
+              <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Syncing with Joule...
+            </>
+          ) : (
+            <>
+              <span className="joule-wm-sm">J<span className="joule-dot-sm" />ULE</span>
+              <span>Open Joule Portal</span>
+              <Icon d={ICONS.externalLink} size={13} />
+            </>
+          )}
+        </button>
+      </div>
+    );
+
+    const SelectBikeScreen = ({ quotes, selectedQuote, onSelect, onDeselect, onDelete, onContinue, onBack, onOpenCalc, onOpenJoule, jouleLoading }) => {
+      const fmt2 = (n) => n.toLocaleString('nl-BE', { minimumFractionDigits: 2 });
+      const hasQuotes = quotes.length > 0;
+      return (
+        <FlowFrame side={<SideSummary step="select" quote={selectedQuote} onOpenCalc={onOpenCalc} />}>
+          <div className="pt-4 pb-6">
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Select your bike</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              {hasQuotes
+                ? "Your Joule quotes are shown below. Pick the one you would like to lease."
+                : "You don't have any Joule quotes yet. Create one in the Joule portal first."}
+            </p>
+          </div>
+          <div className="mb-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)] mb-0.5">
+              You have €{fmt2(EOY_BUDGET)} available
+            </div>
+            <div className="text-xs text-[var(--color-text-default)]">across End of Year Premium</div>
+          </div>
+          <div className="pb-6 flex flex-col gap-3">
+            {hasQuotes ? (
+              <>
+                {quotes.map(q => (
+                  <QuoteCard key={q.id} quote={q} selected={selectedQuote?.id === q.id}
+                    onSelect={onSelect} onDeselect={onDeselect} onDelete={onDelete} />
+                ))}
+                <JouleLoginCard onOpenJoule={onOpenJoule} jouleLoading={jouleLoading} />
+              </>
+            ) : (
+              <JouleLoginCard emptyState={true} onOpenJoule={onOpenJoule} jouleLoading={jouleLoading} />
+            )}
+          </div>
+          <FlowActions onBack={onBack} onNext={onContinue} nextDisabled={!selectedQuote} nextLabel="Continue" />
+        </FlowFrame>
+      );
+    };
+
+    /* =========================================================================
+       SCREEN 2 — Choose budget (configure sub-step 2)
+    ========================================================================= */
+    const BudgetScreen = ({ quote, onContinue, onBack, onOpenCalc }) => {
+      const [primary, setPrimary] = useState('eoy');
+      return (
+        <FlowFrame side={<SideSummary step="budget" quote={quote} onOpenCalc={onOpenCalc} />}>
+          <div className="pt-4 pb-6">
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Choose where to fund this from</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              The annual lease cost will be deducted once a year from your selected budget, adjusted pro rata based on when your lease starts.
+            </p>
+          </div>
+          {/* Available budget header */}
+          <div className="mb-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)] mb-0.5">
+              You have €{EOY_BUDGET.toLocaleString('nl-BE')} available
+            </div>
+            <div className="text-xs text-[var(--color-text-default)]">across End of Year Premium</div>
+          </div>
+          <div className="pb-6 flex flex-col gap-4">
+            <div>
+              <div className="text-sm font-semibold mb-1">Fund €{fmt(quote.annualImpact)}/year from your budgets</div>
+              <div className="text-xs text-[var(--color-text-default)] mb-3 flex items-center gap-1.5">
+                <Icon d={ICONS.info} size={12} />
+                Deducted once per year, pro rata for the first year
+              </div>
+              <RichRadio
+                selected={primary === 'eoy'}
+                onClick={() => setPrimary('eoy')}
+                title="End of Year Premium"
+                sub="Annual deduction, pro rata"
+                right={`€${EOY_BUDGET.toLocaleString('nl-BE')} available`}
+              />
+            </div>
+            <div className="rounded-xl p-4" style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}>
+              <div className="flex gap-2">
+                <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" style={{ color: 'var(--color-info-text)' }} />
+                <p className="text-xs leading-4" style={{ color: 'var(--color-info-text)' }}>
+                  <span className="font-semibold">How annual pro rata works:</span> the first deduction is adjusted based on how many months remain in the year when your lease starts. From year 2 onwards, the full annual amount is deducted in one go. Your employer handles the payment to Joule.
+                </p>
+              </div>
+            </div>
+          </div>
+          <FlowActions onBack={onBack} onNext={onContinue} nextLabel="Review choice" />
+        </FlowFrame>
+      );
+    };
+
+    /* =========================================================================
+       SCREEN 3 — Review
+    ========================================================================= */
+    const TIMELINE_ITEMS = [
+      { title: 'After you click confirm below', sub: 'Your choice is submitted' },
+      { title: 'Employer reviews and approves', sub: '' },
+      { title: 'Bike automatically ordered', sub: 'Joule places the order on approval' },
+      { title: 'Delivery to your dealer or address', sub: 'Timing depends on bike availability' },
+      { title: 'Annual budget deductions start', sub: 'First year pro rata, then full annual amount' },
+    ];
+
+    const ReviewScreen = ({ quote, onSubmit, onBack, onEdit, onOpenCalc }) => {
+      const [tcsAccepted, setTcsAccepted] = useState(false);
+      const [tcsError, setTcsError] = useState(false);
+      const handleSubmit = () => { if (!tcsAccepted) { setTcsError(true); return; } onSubmit(); };
+      return (
+        <FlowFrame side={
+          <ReviewValueCard quote={quote} tcsAccepted={tcsAccepted} onTcsToggle={setTcsAccepted}
+            onSubmit={handleSubmit} tcsError={tcsError} onClearError={() => setTcsError(false)}
+            onOpenCalc={onOpenCalc} />
+        }>
+          <div className="pt-4 pb-6">
+            <button onClick={onBack}
+              className="desktop-only inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)] transition mb-4 -ml-1">
+              <Icon d={ICONS.arrowLeft} size={16} />Back
+            </button>
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Review your choice</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              Check everything is right before submitting. Your employer will review and approve your choice.
+            </p>
+          </div>
+          <div className="pb-6 flex flex-col gap-3">
+            {/* Bike card */}
+            <div className="rounded-xl px-5 py-4" style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">🚲 Bike</div>
+                <Button variant="secondary" size="sm" onClick={() => onEdit('bike')}>Edit</Button>
+              </div>
+              <div className="text-base font-medium text-[var(--color-text-prominent)]">{quote.name}</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{quote.category} · Order {quote.id}</div>
+              <div className="text-sm text-[var(--color-text-default)] mt-1.5">€{fmt(quote.monthlyPrice)}/month incl. VAT · 36 months</div>
+            </div>
+            {/* Budget card */}
+            <div className="rounded-xl px-5 py-4" style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">Budget</div>
+                <Button variant="secondary" size="sm" onClick={() => onEdit('budget')}>Edit</Button>
+              </div>
+              <div className="flex flex-col gap-1.5 text-sm">
+                <Row label="End of Year Premium" value={`€${fmt(quote.annualImpact)}/year`} />
+                <Row label="First year (pro rata)" value="Adjusted based on start date" />
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1" />
+                <Row label="Total over 36 months" value={`€${fmt(quote.annualImpact * 3)}`} bold />
+              </div>
+            </div>
+
+            {/* Timeline — required for external provider flows */}
+            <div className="rounded-xl px-5 py-4" style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+              <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium mb-3">What happens after you confirm</div>
+              <Timeline items={TIMELINE_ITEMS} firstDone={false} />
+            </div>
+          </div>
+        </FlowFrame>
+      );
+    };
+
+    /* =========================================================================
+       SCREEN 4 — Success
+    ========================================================================= */
+    const TIMELINE_SUCCESS = [
+      { title: 'Just now', sub: 'Your choice has been submitted' },
+      { title: 'Employer reviews and approves', sub: '' },
+      { title: 'Bike automatically ordered', sub: 'Joule places the order on approval' },
+      { title: 'Delivery to your dealer or address', sub: 'Timing depends on bike availability' },
+      { title: 'Annual budget deductions start', sub: 'First year pro rata, then full annual amount' },
+    ];
+
+    const SuccessScreen = ({ quote, onViewChoice, onRestart, onOpenCalc }) => (
+      <div className="max-w-[600px] mx-auto px-6 pt-16 pb-8">
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-6 anim-success-pop relative"
+            style={{ border: '1.5px solid var(--color-success-text)' }}>
+            <div className="absolute inset-0 rounded-full anim-success-ring" style={{ background: 'var(--color-success-bg)' }} />
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-success-text)' }} className="relative">
+              <path className="anim-draw-check" d="m5 12 5 5L20 7" />
+            </svg>
+          </div>
+          <h1 className="ff-display font-bold text-2xl tracking-tight text-[var(--color-text-prominent)] mb-2">
+            Joule bike leasing submitted!
+          </h1>
+          <p className="text-sm text-[var(--color-text-default)]">
+            {quote.shortName} · €{fmt(quote.monthlyPrice)}/month · awaiting employer approval
+          </p>
+        </div>
+        <AdvantageChipWithCalc quote={quote} onOpenCalc={onOpenCalc} />
+        <div className="rounded-2xl p-4 flex flex-col gap-3 mt-4" style={{ border: '1px solid var(--color-border-light)' }}>
+          <div className="text-base font-semibold ff-display">What happens next</div>
+          <Timeline items={TIMELINE_SUCCESS} firstDone={true} />
+        </div>
+        <div className="flex flex-col gap-2 mt-6">
+          <Button variant="primary" className="w-full" onClick={onViewChoice}>View your bike lease</Button>
+          <Button variant="secondary" className="w-full" onClick={onRestart}>Back to benefits</Button>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       BENEFIT DETAIL — post-submission state
+    ========================================================================= */
+    const BenefitDetailScreen = ({ quote, status, onCancel, onSetStatus, onOpenCalc }) => {
+      // Status states: pending → approved → active
+      // pending:  submitted, awaiting employer approval
+      // approved: employer approved, bike ordered, awaiting delivery
+      // active:   bike delivered, lease running
+
+      const TIMELINE_DETAIL = [
+        { title: 'Choice submitted',                  pending_sub: 'Today, 14:32',    approved_sub: '12 May 2026',  active_sub: '12 May 2026' },
+        { title: 'Employer approved',                 pending_sub: '',                approved_sub: '13 May 2026',  active_sub: '13 May 2026' },
+        { title: 'Bike ordered via Joule',            pending_sub: '',                approved_sub: '13 May 2026',  active_sub: '13 May 2026' },
+        { title: 'Delivered to dealer or address',    pending_sub: '',                approved_sub: '',             active_sub: '3 Jun 2026'  },
+        { title: 'Lease active, deductions start',    pending_sub: '',                approved_sub: '',             active_sub: 'Jun 2026, End of Year Premium' },
+      ];
+
+      const doneCount = status === 'pending' ? 1 : status === 'approved' ? 3 : 5;
+
+      const items = TIMELINE_DETAIL.map(t => ({
+        title: t.title,
+        sub: status === 'pending' ? t.pending_sub : status === 'approved' ? t.approved_sub : t.active_sub,
+      }));
+
+      const STATUS_CONFIG = {
+        pending:  { pill: <Pill tone="warning">Pending approval</Pill>,  meta: 'submitted today',          desc: "Your choice is being reviewed by your employer. Once approved, your bike will be automatically ordered via Joule." },
+        approved: { pill: <Pill tone="neutral">Approved, awaiting delivery</Pill>, meta: 'approved 13 May', desc: "Your employer approved your choice and the bike has been ordered via Joule. The lease starts once the bike is delivered." },
+        active:   { pill: <Pill tone="success">Active, lease running</Pill>,   meta: 'lease started Jun 2026',   desc: "Your bike has been delivered and the lease is running. Annual deductions are drawn from your End of Year Premium." },
+      };
+      const cfg = STATUS_CONFIG[status];
+
+      return (
+        <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+          <main className="flex-1 max-w-[760px]">
+            <div className="flex flex-col gap-3 px-5 pt-4 pb-6 relative">
+              <div className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at center, rgba(212,74,116,0.10) 0%, rgba(212,74,116,0) 70%)', filter: 'blur(20px)' }} aria-hidden />
+              <div className="flex items-center gap-3 relative flex-wrap">
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">Joule bike leasing</div>
+                {cfg.pill}
+              </div>
+              <div className="text-sm font-medium text-[var(--color-text-default)] relative">
+                External provider · {cfg.meta}
+              </div>
+              <p className="text-base leading-6 text-[var(--color-text-default)] max-w-[640px] relative">{cfg.desc}</p>
+            </div>
+
+            <div className="px-5">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>Status
+              </h2>
+              <div className="rounded-xl p-5" style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+                <Timeline items={items} doneCount={doneCount} />
+              </div>
+            </div>
+
+            <div className="px-5 pt-2 pb-6">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>Choice details
+              </h2>
+              <div className="rounded-xl px-5 py-4 flex flex-col gap-2 text-sm" style={{ border: '1px solid var(--color-border-light)', background: 'white' }}>
+                <Row label="Bike" value={quote.shortName} />
+                <Row label="Order" value={quote.id} />
+                <Row label="Monthly lease" value={`€${fmt(quote.monthlyPrice)} incl. VAT`} />
+                <Row label="Annual deduction" value={`€${fmt(quote.annualImpact)}, first year pro rata`} />
+                <Row label="Budget" value="End of Year Premium" />
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1" />
+                <Row label="Total over 36 months" value={`€${fmt(quote.annualImpact * 3)}`} bold />
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1" />
+                <div className="pt-0.5">
+                  <a href={quote.url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold underline link-underline hover:opacity-70 transition"
+                    style={{ color: 'var(--color-brand-text)' }}>
+                    View quote in Joule
+                    <Icon d={ICONS.externalLink} size={13} />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Demo state cycle */}
+            <div className="px-5 pt-2 pb-6 flex justify-center">
+              <button
+                onClick={() => onSetStatus(status === 'pending' ? 'approved' : status === 'approved' ? 'active' : 'pending')}
+                className="text-xs text-[var(--color-text-muted)] hover:opacity-70 underline">
+                (demo: next state is {status === 'pending' ? 'approved' : status === 'approved' ? 'active' : 'pending'})
+              </button>
+            </div>
+          </main>
+
+          {/* Side panel */}
+          <aside className="w-[416px] shrink-0">
+            <div className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}>
+              <div>
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                  {status === 'active' ? 'Annual deduction (active)' : 'Annual deduction (not yet active)'}
+                </div>
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">€{fmt(quote.annualImpact)}</div>
+                <div className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                  {status === 'active' ? 'End of Year Premium, running' : 'End of Year Premium, starts on delivery'}
+                </div>
+              </div>
+              <AdvantageChipWithCalc quote={quote} onOpenCalc={onOpenCalc} />
+              {status === 'pending' && (
+                <>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <Button variant="secondary" className="w-full" onClick={onCancel}>Cancel choice</Button>
+                </>
+              )}
+            </div>
+          </aside>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Edit modals
+    ========================================================================= */
+    const EditBikeModal = ({ quote, onSave, onClose }) => {
+      const [selected, setSelected] = useState(quote);
+      return (
+        <Modal onClose={onClose} maxWidth={600}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Change bike</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">Pick a different Joule quote.</p>
+          <div className="flex flex-col gap-2 mb-5">
+            {QUOTES.map(q => (
+              <QuoteCard key={q.id} quote={q} selected={selected.id === q.id} onSelect={setSelected} />
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button variant="primary" className="flex-1" onClick={() => { onSave(selected); onClose(); }}>Save</Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    const EditBudgetModal = ({ onClose }) => (
+      <Modal onClose={onClose} maxWidth={520}>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Edit budget</h2>
+          <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+            <Icon d={ICONS.x} size={16} />
+          </button>
+        </div>
+        <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">Only budgets eligible for bike leasing are shown.</p>
+        <RichRadio selected={true} onClick={() => {}} title="End of Year Premium" sub="Spread payment, paid in December" right="€150,000 available" />
+        <div className="flex gap-3 mt-6">
+          <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" className="flex-1" onClick={onClose}>Save</Button>
+        </div>
+      </Modal>
+    );
+
+    /* =========================================================================
+       Moderator panel — same as pension savings
+    ========================================================================= */
+    const SCREEN_LABELS = ['0. Intro', '1. Select bike', '2. Choose budget', '3. Review', '4. Success', '5. My lease'];
+    const ModeratorPanel = ({ step, onJump, onReset, device, onSetDevice, hasQuotes, onToggleQuotes }) => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="moderator-panel fixed bottom-4 right-4 z-50 ff-poppins">
+          {open && (
+            <div className="bg-[var(--color-strong)] text-white rounded-xl p-4 mb-2 w-72 anim-fade"
+              style={{ boxShadow: 'var(--shadow-modal)' }}>
+              <div className="text-[11px] uppercase tracking-wider opacity-60 mb-3 font-semibold">Moderator panel</div>
+              <div className="mb-4">
+                <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Device</div>
+                <div className="flex gap-1 bg-white/10 rounded-md p-1">
+                  {['desktop', 'mobile'].map(d => (
+                    <button key={d} onClick={() => onSetDevice(d)}
+                      className={`flex-1 px-2 py-1 rounded text-xs transition ${device === d ? 'bg-white text-[var(--color-strong)] font-semibold' : 'hover:bg-white/10'}`}>
+                      {d.charAt(0).toUpperCase() + d.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Screen</div>
+              <div className="flex flex-col gap-1.5 mb-4">
+                {SCREEN_LABELS.map((label, i) => (
+                  <button key={label} onClick={() => onJump(i)}
+                    className={`text-left px-3 py-1.5 rounded-md text-xs transition ${step === i ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                <label className="flex items-center gap-2 cursor-pointer text-xs">
+                  <input type="checkbox" checked={hasQuotes} onChange={() => { onToggleQuotes(); setDeletedIds([]); }} />
+                  Has Joule quotes (toggle empty state)
+                </label>
+                <button onClick={onReset} className="text-left px-3 py-1.5 rounded-md text-xs bg-white/10 hover:bg-white/20 transition">
+                  ↺ Reset prototype
+                </button>
+              </div>
+            </div>
+          )}
+          <button onClick={() => setOpen(!open)}
+            className="bg-[var(--color-strong)] text-white rounded-full px-4 py-2.5 text-xs font-semibold hover:opacity-90 flex items-center gap-2"
+            style={{ boxShadow: 'var(--shadow-modal)' }}>
+            <Icon d={ICONS.sparkle} size={14} />
+            {open ? 'Hide' : 'Moderator'}
+          </button>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       App
+    ========================================================================= */
+    function App() {
+      const [step, setStep] = useState(0);
+      const [prevStep, setPrevStep] = useState(0);
+      const [selectedQuote, setSelectedQuote] = useState(null);
+      const [editModal, setEditModal] = useState(null);
+      const [tcsAccepted, setTcsAccepted] = useState(false);
+      const [tcsErrorMobile, setTcsErrorMobile] = useState(false);
+      const [benefitStatus, setBenefitStatus] = useState('pending');
+      const [cancelDialog, setCancelDialog] = useState(false);
+      const [device, setDevice] = useState('desktop');
+      const [demoHasQuotes, setDemoHasQuotes] = useState(true);
+      const [calcOpen, setCalcOpen] = useState(false);
+      const [deletedIds, setDeletedIds] = useState([]);
+      const [jouleLoading, setJouleLoading] = useState(false);
+      const [pendingQuoteUnlocked, setPendingQuoteUnlocked] = useState(false);
+      const calcQuote = selectedQuote || QUOTES[0];
+      const visibleQuotes = demoHasQuotes
+        ? [...QUOTES, ...(pendingQuoteUnlocked ? [PENDING_QUOTE] : [])].filter(q => !deletedIds.includes(q.id))
+        : (pendingQuoteUnlocked ? [PENDING_QUOTE].filter(q => !deletedIds.includes(q.id)) : []);
+
+      const handleOpenJoule = () => {
+        setJouleLoading(true);
+        setTimeout(() => {
+          setJouleLoading(false);
+          setPendingQuoteUnlocked(true);
+        }, 2000);
+      };
+
+      const direction = step >= prevStep ? 'forward' : 'back';
+      useEffect(() => { setPrevStep(step); }, [step]);
+      useEffect(() => { setTcsErrorMobile(false); }, [step]);
+
+      const reset = () => { setStep(0); setSelectedQuote(null); setTcsAccepted(false); setBenefitStatus('pending'); setDeletedIds([]); setPendingQuoteUnlocked(false); };
+      const jumpTo = (i) => {
+        setStep(i);
+        if (i >= 1 && !selectedQuote) setSelectedQuote(QUOTES[0]);
+        if (i >= 3 && !tcsAccepted) setTcsAccepted(true);
+      };
+
+      const animClass = direction === 'forward' ? 'anim-page-forward' : 'anim-page-back';
+
+      const renderMobileBottomBar = () => {
+        if (!selectedQuote) return null;
+        const q = selectedQuote;
+        if (step === 0) return (
+          <BottomBarSplit
+            infoTop="Example advantage"
+            infoMain="+€4,288.78"
+            infoSub="over 36 months vs cash"
+            action={<Button variant="primary" className="w-full" onClick={() => setStep(1)}>Choose this benefit</Button>}
+          />
+        );
+        if (step === 1) return (
+          <BottomBarSplit
+            infoTop={selectedQuote ? "Selected" : "No bike selected"}
+            infoMain={selectedQuote ? `€${fmt(selectedQuote.monthlyPrice)}/mo` : '—'}
+            infoSub={selectedQuote ? selectedQuote.shortName : 'Choose a quote above'}
+            action={<Button variant="primary" className="w-full" onClick={() => setStep(2)} disabled={!selectedQuote}>Continue</Button>}
+          />
+        );
+        if (step === 2) return (
+          <BottomBarSplit
+            infoTop="From budget / month"
+            infoMain={`€${fmt(q.annualImpact / 12)}`}
+            infoSub="End of Year Premium · spread"
+            action={<Button variant="primary" className="w-full" onClick={() => setStep(3)}>Continue</Button>}
+          />
+        );
+        if (step === 3) return (
+          <BottomBarStacked
+            helper={`€${fmt(q.annualImpact / 12)}/month will be deducted from your End of Year Premium`}
+            checkbox={
+              <Checkbox checked={tcsAccepted} onChange={(v) => { setTcsAccepted(v); if (v) setTcsErrorMobile(false); }} id="tcs-accept-mobile">
+                I accept the <button type="button" onClick={(e) => e.stopPropagation()} className="underline link-underline hover:opacity-70">terms & conditions</button>.
+              </Checkbox>
+            }
+            action={
+              <>
+                {tcsErrorMobile && <div className="flex items-start gap-1.5 text-xs anim-reveal" style={{ color: 'var(--color-warning-text)' }}>
+                  <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" /><span>Please accept the terms and conditions to continue.</span>
+                </div>}
+                <Button variant="primary" className="w-full" onClick={() => { if (!tcsAccepted) { setTcsErrorMobile(true); return; } setStep(4); }}>Submit choice</Button>
+              </>
+            }
+          />
+        );
+        if (step === 5 && benefitStatus === 'pending') return (
+          <BottomBarSplit
+            infoTop="Status"
+            infoMain="Pending"
+            infoSub="Awaiting employer approval"
+            action={<Button variant="secondary" className="w-full" onClick={() => setCancelDialog(true)}>Cancel choice</Button>}
+          />
+        );
+        return null;
+      };
+
+      const appContent = (
+        <>
+          <TopNav active="Benefits" />
+          {step !== 4 && (
+            <MobileFlowHeader
+              onBack={step === 0 ? null : step === 5 ? () => setStep(0) : () => setStep(step - 1)}
+              rightSlot={step <= 2 ? <span className="joule-wm-sm">J<span className="joule-dot-sm" />ULE</span> : null}
+            />
+          )}
+
+          {/* Stepper — configure steps only (1 and 2), not review */}
+          {step >= 1 && step <= 2 && (
+            <div className="max-w-[1248px] mx-auto px-6 pt-4 stepper-shell">
+              <Stepper current={step - 1} />
+            </div>
+          )}
+
+          <div className="mobile-scroll-area">
+            <div key={step} className={animClass}>
+              {step === 0 && <IntroScreen onStart={() => setStep(1)} onOpenCalc={() => setCalcOpen(true)} />}
+              {step === 1 && (
+                <SelectBikeScreen
+                  quotes={visibleQuotes}
+                  selectedQuote={selectedQuote}
+                  onSelect={setSelectedQuote}
+                  onDeselect={() => setSelectedQuote(null)}
+                  onDelete={id => { setDeletedIds(prev => [...prev, id]); if (selectedQuote?.id === id) setSelectedQuote(null); }}
+                  onContinue={() => setStep(2)} onBack={() => setStep(0)}
+                  onOpenCalc={() => setCalcOpen(true)}
+                  onOpenJoule={handleOpenJoule}
+                  jouleLoading={jouleLoading} />
+              )}
+              {step === 2 && selectedQuote && (
+                <BudgetScreen quote={selectedQuote} onContinue={() => setStep(3)} onBack={() => setStep(1)}
+                  onOpenCalc={() => setCalcOpen(true)} />
+              )}
+              {step === 3 && selectedQuote && (
+                <ReviewScreen quote={selectedQuote} onSubmit={() => setStep(4)}
+                  onBack={() => setStep(2)} onEdit={setEditModal} onOpenCalc={() => setCalcOpen(true)} />
+              )}
+              {step === 4 && selectedQuote && (
+                <SuccessScreen quote={selectedQuote} onViewChoice={() => { setBenefitStatus('pending'); setStep(5); }} onRestart={reset}
+                  onOpenCalc={() => setCalcOpen(true)} />
+              )}
+              {step === 5 && selectedQuote && (
+                <BenefitDetailScreen quote={selectedQuote} status={benefitStatus}
+                  onCancel={() => setCancelDialog(true)} onSetStatus={setBenefitStatus}
+                  onOpenCalc={() => setCalcOpen(true)} />
+              )}
+            </div>
+          </div>
+
+          {renderMobileBottomBar() && <MobileBottomBar>{renderMobileBottomBar()}</MobileBottomBar>}
+
+          {/* Intro mobile bottom — shown even without a selected quote */}
+          {step === 0 && (
+            <MobileBottomBar>
+              <BottomBarSplit
+                infoTop="Example advantage"
+                infoMain="+€4,288"
+                infoSub="over 36 months vs cash"
+                action={<Button variant="primary" className="w-full" onClick={() => setStep(1)}>Choose this benefit</Button>}
+              />
+            </MobileBottomBar>
+          )}
+
+          {/* Edit modals */}
+          {editModal === 'bike' && selectedQuote && (
+            <EditBikeModal quote={selectedQuote} onSave={(q) => setSelectedQuote(q)} onClose={() => setEditModal(null)} />
+          )}
+          {editModal === 'budget' && (
+            <EditBudgetModal onClose={() => setEditModal(null)} />
+          )}
+
+          {/* Cancel confirmation */}
+          {cancelDialog && (
+            <Modal onClose={() => setCancelDialog(false)} maxWidth={420}>
+              <div className="flex items-start justify-between mb-1">
+                <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Cancel your choice?</h2>
+                <button onClick={() => setCancelDialog(false)} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+                  <Icon d={ICONS.x} size={16} />
+                </button>
+              </div>
+              <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+                Your choice will be removed. You can submit a new one at any time. Your Joule quotes stay valid.
+              </p>
+              <div className="flex gap-3 mt-4">
+                <Button variant="secondary" className="flex-1" onClick={() => setCancelDialog(false)}>Keep choice</Button>
+                <Button variant="primary" className="flex-1" onClick={() => { setCancelDialog(false); reset(); }}>Cancel choice</Button>
+              </div>
+            </Modal>
+          )}
+        </>
+      );
+
+      return (
+        <>
+          {device === 'mobile' ? (
+            <div className="min-h-screen flex justify-center pt-10 pb-32" style={{ background: '#f3f4f6' }}>
+              <div className="device-bezel">
+                <div className="device-screen mobile-mode">{appContent}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="min-h-screen bg-white pb-32">{appContent}</div>
+          )}
+          {/* Calculation modal */}
+          {calcOpen && <BikeCalcModal quote={calcQuote} onClose={() => setCalcOpen(false)} />}
+
+          <ModeratorPanel step={step} onJump={jumpTo} onReset={reset}
+            device={device} onSetDevice={setDevice}
+            hasQuotes={demoHasQuotes} onToggleQuotes={() => setDemoHasQuotes(!demoHasQuotes)} />
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

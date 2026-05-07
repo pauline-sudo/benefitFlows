@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>Payflip · Extra holidays · Testable prototype</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-primary: #d44a74;
+      --color-primary-hover: #b83b62;
+      --color-strong: #0f0d28;
+      --color-text-prominent: #0f0d28;
+      --color-text-default: #50545e;
+      --color-text-muted: #8b8d96;
+      --color-text-inverted: #ffffff;
+      --color-surface: #f7f7f8;
+      --color-surface-hover: #eaeaeb;
+      --color-border-light: #eaeaeb;
+      --color-border-mid: #d4d6db;
+      --color-success-bg: #ebf9f1;
+      --color-success-text: #086343;
+      --color-warning-bg: #fff5e0;
+      --color-warning-text: #92520c;
+      --color-warning-border: #f4c77d;
+      --color-info-bg: #eef2ff;
+      --color-info-text: #1d3a8a;
+      --color-brand-bg: #fdf5f8;
+      --color-brand-bg-deep: #fbe7ee;
+      --color-brand-text: #b83b62;
+      --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    html, body {
+      font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #ffffff;
+      color: var(--color-text-prominent);
+      letter-spacing: -0.005em;
+    }
+    .ff-display { font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .ff-poppins { font-family: 'Poppins', system-ui, sans-serif; }
+    .focus-ring:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    .link-underline { text-underline-offset: 3px; }
+    .nice-scroll::-webkit-scrollbar { width: 8px; }
+    .nice-scroll::-webkit-scrollbar-thumb { background: #d4d6db; border-radius: 4px; }
+
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.96) translateY(4px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+    .anim-fade { animation: fadeIn 180ms ease-out both; }
+    .anim-scale { animation: scaleIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    @keyframes pageEnterForward {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pageEnterBackward {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-page-forward { animation: pageEnterForward 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-page-back { animation: pageEnterBackward 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    @keyframes successPop {
+      0% { opacity: 0; transform: scale(0.4); }
+      55% { transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes successRing {
+      0% { transform: scale(0.8); opacity: 0.55; }
+      100% { transform: scale(1.7); opacity: 0; }
+    }
+    @keyframes drawCheck {
+      0% { stroke-dashoffset: 30; opacity: 0; }
+      30% { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .anim-success-pop { animation: successPop 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-success-ring {
+      animation: successRing 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 220ms;
+    }
+    .anim-draw-check {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawCheck 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 280ms;
+    }
+
+    @keyframes slideReveal {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-reveal { animation: slideReveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    @keyframes labelSlideFwd {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes labelSlideBack {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .anim-label-slide-fwd { animation: labelSlideFwd 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-label-slide-back { animation: labelSlideBack 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Number stepper bump animation when value changes */
+    @keyframes numberBump {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .anim-bump { animation: numberBump 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+    button:active:not(:disabled) { transform: translateY(0.5px); }
+
+    /* Mobile mode */
+    .mobile-mode .max-w-\[1248px\] { max-width: 100% !important; }
+    .mobile-mode .max-w-\[760px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[600px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[640px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[440px\]  { max-width: 100% !important; }
+    .mobile-mode .px-6 { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .px-8 { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .flow-row > main > .px-5 {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .mobile-mode aside { display: none !important; }
+    .mobile-mode .flow-row {
+      flex-direction: column !important;
+      gap: 0 !important;
+    }
+    .mobile-mode .glance-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
+    }
+    .mobile-mode .glance-grid > div,
+    .mobile-mode .glance-grid > button {
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid var(--color-border-light) !important;
+      padding: 16px 0 !important;
+    }
+    .mobile-mode .glance-grid > div:last-child,
+    .mobile-mode .glance-grid > button:last-child { border-bottom: none !important; }
+    .mobile-bottom-bar { display: none; }
+    .mobile-mode .mobile-bottom-bar {
+      display: block;
+      flex-shrink: 0;
+      background: white;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--color-border-light);
+      box-shadow: 0 -4px 12px -2px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+    .mobile-mode .flow-actions-desktop { display: none !important; }
+    .mobile-only { display: none; }
+    .mobile-mode .mobile-only { display: block; }
+    .mobile-mode .desktop-only { display: none !important; }
+    .mobile-mode .howto-grid { grid-template-columns: 1fr !important; }
+    .mobile-mode .stepper-shell {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .mobile-mode .stepper-shell p {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+    .mobile-mode .stepper-bar,
+    .mobile-mode .stepper-fill { border-radius: 0 !important; }
+
+    .mobile-mode .modal-overlay {
+      align-items: flex-end !important;
+      padding: 0 !important;
+    }
+    .mobile-mode .modal-card {
+      border-radius: 16px 16px 0 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: 85% !important;
+      margin: 0 !important;
+      animation: drawerUp 320ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    }
+    .mobile-mode .modal-card::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--color-border-mid);
+      margin: 8px auto 0;
+      flex-shrink: 0;
+    }
+    @keyframes drawerUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .device-bezel {
+      background: #1f2937;
+      padding: 8px;
+      border-radius: 36px;
+      box-shadow: 0 12px 40px rgba(15, 13, 40, 0.18), 0 2px 8px rgba(15, 13, 40, 0.08);
+    }
+    .device-screen {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      width: 390px;
+      height: calc(100vh - 80px);
+      transform: translateZ(0);
+      position: relative;
+    }
+    .mobile-mode {
+      display: flex !important;
+      flex-direction: column;
+    }
+    .mobile-scroll-area { flex: 1; min-height: 0; }
+    .mobile-mode .mobile-scroll-area {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .mobile-mode .mobile-scroll-area > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim-page-forward, .anim-page-back, .anim-fade, .anim-scale,
+      .anim-success-pop, .anim-success-ring, .anim-draw-check,
+      .anim-reveal, .anim-label-slide-fwd, .anim-label-slide-back, .anim-bump {
+        animation: none !important;
+      }
+      * { transition-duration: 0.01ms !important; }
+    }
+    @media print { .moderator-panel { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef } = React;
+
+    /* =========================================================================
+       Icons
+       ========================================================================= */
+    const Icon = ({ d, size = 16, stroke = 1.5, fill = 'none', viewBox = '0 0 24 24', className = '', style }) => (
+      <svg
+        width={size} height={size} viewBox={viewBox} fill={fill} stroke="currentColor"
+        strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round"
+        className={className} style={style} aria-hidden="true"
+      >
+        {d}
+      </svg>
+    );
+    const ICONS = {
+      check: <path d="M20 6 9 17l-5-5" />,
+      x: <><path d="M18 6 6 18" /><path d="m6 6 12 12" /></>,
+      arrowLeft: <><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></>,
+      arrowRight: <><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>,
+      info: <><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>,
+      alert: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></>,
+      chevron: <path d="m6 9 6 6 6-6" />,
+      book: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>,
+      sparkle: <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />,
+      minus: <path d="M5 12h14" />,
+      plus: <><path d="M12 5v14" /><path d="M5 12h14" /></>,
+      calendar: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></>,
+      wallet: <><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4Z" /></>,
+      checkCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></>,
+      sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></>,
+      clock: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
+    };
+
+    /* =========================================================================
+       Per-benefit config — single source of truth for math + copy
+       ========================================================================= */
+    const config = {
+      name: 'Extra holidays',
+      icon: '🌴',
+      grossMonthly: 4000,
+      fte: 1.0,
+      workingDaysPerYear: 260,
+      employerCostRate: 0.0886,
+      maxDays: 5,
+      defaultDays: 1,
+    };
+    const dailyCost = Math.round((config.grossMonthly * 12) / config.workingDaysPerYear * config.fte); // €185
+    const POTS = {
+      bonus: { id: 'bonus', label: 'Bonus', remaining: 700, sub: 'Discretionary bonus, paid Dec' },
+      eoy: { id: 'eoy', label: 'End of year premium', remaining: 1450, sub: 'Paid in December' },
+    };
+    const sourceLabel = (id) => POTS[id]?.label || id;
+
+    const STEPPER_LABELS = ['Choose days', 'Choose budget'];
+    const STEPPER_TOTAL = 2;
+
+    /* =========================================================================
+       Reusable primitives
+       ========================================================================= */
+    const Button = ({ variant = 'primary', size = 'md', children, disabled, onClick, className = '', leftIcon, rightIcon, type = 'button' }) => {
+      const base = 'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold transition focus-ring whitespace-nowrap';
+      const sizes = { sm: 'h-9 px-3 text-sm', md: 'h-10 px-4 text-[15px]', lg: 'h-11 px-5 text-base' };
+      const variants = {
+        primary: 'text-white shadow-sm',
+        secondary: 'bg-white border border-[var(--color-border-mid)] text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        ghost: 'bg-transparent text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        link: 'h-auto p-0 underline text-[var(--color-text-prominent)] hover:opacity-70',
+      };
+      const style = variant === 'primary' ? { background: disabled ? '#e5b6c5' : 'var(--color-primary)' } : {};
+      return (
+        <button
+          type={type} onClick={onClick} disabled={disabled}
+          className={`${base} ${variants[variant]} ${variant === 'link' ? '' : sizes[size]} ${disabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'} ${className}`}
+          style={style}
+        >
+          {leftIcon}
+          {children}
+          {rightIcon}
+        </button>
+      );
+    };
+
+    const Pill = ({ children, tone = 'neutral' }) => {
+      const tones = {
+        neutral: 'bg-[var(--color-surface)] text-[var(--color-text-prominent)]',
+        success: 'bg-[var(--color-success-bg)] text-[var(--color-success-text)]',
+        warning: 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)]',
+      };
+      return (
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ${tones[tone]}`}>
+          {children}
+        </span>
+      );
+    };
+
+    const Checkbox = ({ checked, onChange, children, id }) => (
+      <label htmlFor={id} className="flex items-start gap-3 cursor-pointer select-none">
+        <button
+          id={id} type="button" onClick={() => onChange(!checked)}
+          className="w-5 h-5 rounded shrink-0 flex items-center justify-center transition mt-0.5 focus-ring"
+          role="checkbox" aria-checked={checked}
+          style={{
+            border: `1.5px solid ${checked ? 'var(--color-primary)' : 'var(--color-border-mid)'}`,
+            background: checked ? 'var(--color-primary)' : 'white',
+          }}
+        >
+          {checked && <Icon d={ICONS.check} size={12} stroke={3} className="text-white" />}
+        </button>
+        <span className="text-sm leading-6 text-[var(--color-text-prominent)]">{children}</span>
+      </label>
+    );
+
+    const MobileBottomBar = ({ children }) => <div className="mobile-bottom-bar">{children}</div>;
+
+    const BottomBarSplit = ({ infoTop, infoMain, infoSub, helper, action }) => (
+      <div className="flex items-center gap-6">
+        <div className="flex-1 flex flex-col justify-center min-h-[48px] gap-0.5 min-w-0">
+          {infoTop && (
+            <div className="text-[11px] font-medium text-[var(--color-text-default)] tracking-[0.04em] uppercase">{infoTop}</div>
+          )}
+          {infoMain && (
+            <div className="ff-display font-semibold text-xl leading-7 tracking-tight text-[var(--color-text-prominent)]">{infoMain}</div>
+          )}
+          {infoSub && (
+            <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">{infoSub}</div>
+          )}
+          {helper && !infoTop && !infoMain && (
+            <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">{helper}</div>
+          )}
+        </div>
+        <div className="flex-1">{action}</div>
+      </div>
+    );
+
+    /* =========================================================================
+       Stepper
+       ========================================================================= */
+    const Stepper = ({ current }) => {
+      const prevRef = useRef(current);
+      const direction = current >= prevRef.current ? 'forward' : 'back';
+      useEffect(() => { prevRef.current = current; }, [current]);
+
+      const stepNumber = current + 1;
+      const label = STEPPER_LABELS[current];
+      const pct = (stepNumber / STEPPER_TOTAL) * 100;
+      const fillTransition = `width 320ms cubic-bezier(0.16, 1, 0.3, 1)`;
+      const pearlTransition = `left 320ms cubic-bezier(0.16, 1, 0.3, 1)`;
+
+      return (
+        <div className="w-full flex flex-col gap-3 py-4">
+          <p
+            key={stepNumber}
+            className={`text-xs font-semibold tracking-wide text-[var(--color-text-prominent)] ${direction === 'forward' ? 'anim-label-slide-fwd' : 'anim-label-slide-back'}`}
+          >
+            Step {stepNumber} of {STEPPER_TOTAL} · {label}
+          </p>
+          <div className="stepper-bar relative h-1 w-full rounded-full" style={{ background: '#eaeaeb' }}>
+            <div
+              className="stepper-fill absolute left-0 top-0 h-full rounded-full"
+              style={{ width: `${pct}%`, background: '#220a35', transition: fillTransition }}
+            />
+            <div
+              className="absolute top-1/2 w-2 h-2 rounded-full -translate-y-1/2"
+              style={{
+                left: `calc(${pct}% - 4px)`,
+                background: '#220a35',
+                transition: pearlTransition,
+                boxShadow: '0 0 0 4px rgba(34, 10, 53, 0.1)',
+              }}
+            />
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Top nav + mobile header
+       ========================================================================= */
+    const TopNav = ({ active = 'Benefits' }) => (
+      <header
+        className="desktop-only h-[60px] flex items-center justify-between px-8 sticky top-0 z-30 bg-white"
+        style={{ borderBottom: '1px solid var(--color-border-light)' }}
+      >
+        <div className="flex items-center gap-2 ff-display">
+          <div className="w-8 h-7 relative">
+            <svg viewBox="0 0 33 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <path d="M0 0 H10 V17 H0 Z M13 0 H22 V8 H13 Z M13 9 H22 V17 H13 Z M25 0 H33 V17 H25 Z" fill="#0f0d28" />
+            </svg>
+          </div>
+          <span className="font-bold text-[22px] tracking-tight">Payflip</span>
+        </div>
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+          {['Home', 'Benefits', 'Salary', 'Budget'].map((item) => (
+            <button
+              key={item}
+              className={`text-sm font-medium py-1.5 transition ${item === active ? 'text-[var(--color-text-prominent)] border-b-2 border-black' : 'text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)]'}`}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
+        <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm" style={{ background: 'var(--color-surface-hover)' }}>
+          PT
+        </div>
+      </header>
+    );
+
+    const MobileFlowHeader = ({ onBack }) => (
+      <header
+        className="mobile-only sticky top-0 z-30 bg-white"
+        style={{ borderBottom: '1px solid var(--color-border-light)' }}
+      >
+        <div className="flex items-center gap-3 p-5">
+          {onBack ? (
+            <button
+              onClick={onBack} aria-label="Back"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:opacity-80 transition"
+              style={{ background: 'var(--color-surface)' }}
+            >
+              <Icon d={ICONS.arrowLeft} size={18} />
+            </button>
+          ) : <div className="w-9 h-9" />}
+        </div>
+      </header>
+    );
+
+    /* =========================================================================
+       Side summary (desktop) — adapts per step
+       ========================================================================= */
+    const SideSummary = ({ step, subStep, days, primary, secondary }) => {
+      const fmt = (n) => n.toLocaleString('en-BE');
+      const contribution = days * dailyCost;
+      const employerCost = Math.round(contribution * config.employerCostRate);
+      const totalImpact = contribution + employerCost;
+      const primaryRem = primary ? POTS[primary].remaining : 0;
+      const primaryUsed = primary ? Math.min(totalImpact, primaryRem) : 0;
+      const secondaryUsed = totalImpact - primaryUsed;
+
+      if (step !== 'configure') return null;
+
+      // Days sub-step (subStep 0): pre-reveal — keep the side panel light, no
+      // budget impact yet. Matches production's "See budget impact" gate.
+      if (subStep === 0) {
+        return (
+          <aside className="w-[416px] shrink-0">
+            <div
+              className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+            >
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide">Your choice</div>
+                <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)] mt-1">
+                  {days} day{days === 1 ? '' : 's'}
+                </div>
+                <div className="text-xs text-[var(--color-text-default)] mt-1">
+                  Funded from your budgets — see the impact on the next step.
+                </div>
+              </div>
+            </div>
+          </aside>
+        );
+      }
+
+      // Budget sub-step (subStep 1): full breakdown
+      return (
+        <aside className="w-[416px] shrink-0">
+          <div
+            className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+            style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+          >
+            <div className="flex flex-col gap-1">
+              <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide">Your choice</div>
+              <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)] mt-1">
+                {days} day{days === 1 ? '' : 's'}
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+            <div className="flex flex-col gap-1.5 text-sm">
+              <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                Pay from budgets
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-[var(--color-text-default)]">Your contribution</span>
+                <span className="tabular-nums text-[var(--color-text-prominent)]">€{fmt(contribution)}</span>
+              </div>
+              <div className="flex items-baseline justify-between">
+                <span className="text-[var(--color-text-default)]">Employer cost (8.86%)</span>
+                <span className="tabular-nums text-[var(--color-text-prominent)]">+ €{fmt(employerCost)}</span>
+              </div>
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1" />
+              <div className="flex items-baseline justify-between">
+                <span className="font-semibold text-[var(--color-text-prominent)]">Total impact</span>
+                <span className="tabular-nums font-semibold text-[var(--color-text-prominent)]">€{fmt(totalImpact)}</span>
+              </div>
+            </div>
+
+            {primary && (
+              <>
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                <div className="flex flex-col gap-2 text-sm">
+                  <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide">Funded from</div>
+                  <Row label={POTS[primary].label} value={`€${fmt(primaryUsed)}`} />
+                  {secondary && <Row label={POTS[secondary].label} value={`€${fmt(secondaryUsed)}`} />}
+                </div>
+              </>
+            )}
+          </div>
+        </aside>
+      );
+    };
+
+    const Row = ({ label, value, bold }) => (
+      <div className="flex items-baseline justify-between gap-3">
+        <span className={`text-[13px] ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-default)]'}`}>{label}</span>
+        <span className={`text-[13px] tabular-nums ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-prominent)]'}`}>{value}</span>
+      </div>
+    );
+
+    /* =========================================================================
+       Intro primitives — match canonical pension/joule pattern
+       ========================================================================= */
+
+    /* Budget pill with hover-revealed available amount */
+    const BudgetPillWithAmount = ({ label, available }) => {
+      const [hovered, setHovered] = useState(false);
+      return (
+        <div
+          className="relative inline-flex"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-default"
+            style={{
+              background: hovered ? 'var(--color-surface-hover)' : 'var(--color-surface)',
+              color: 'var(--color-text-prominent)',
+            }}
+          >
+            {label}
+            {hovered && (
+              <span className="tabular-nums font-semibold anim-reveal" style={{ color: 'var(--color-brand-text)' }}>
+                · {available}
+              </span>
+            )}
+          </span>
+        </div>
+      );
+    };
+
+    /* 4-segment bar rating: neutral(1) → good(2) → very good(3) → excellent(4)
+       Extra holidays = 1 (Neutral). Salary-swap, no NSSO/tax exemption. */
+    const TAX_SCORE = 1;
+
+    const TaxScore = ({ score, onClick }) => {
+      const LEVELS = ['Neutral', 'Good', 'Very good', 'Excellent'];
+      const COLORS = { 1: '#8b8d96', 2: '#2d7dd2', 3: '#1a9e5c', 4: '#b83b62' };
+      const color = COLORS[score];
+      const label = LEVELS[score - 1];
+      return (
+        <button
+          onClick={onClick}
+          className="flex flex-col gap-2 text-left w-full hover:opacity-80 transition group"
+        >
+          <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)] flex items-center gap-1.5">
+            Tax score
+            <Icon d={ICONS.info} size={12} className="opacity-50 group-hover:opacity-100 transition" style={{ color: 'var(--color-text-muted)' }} />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-end gap-[3px]">
+              {[1, 2, 3, 4].map((lvl) => (
+                <div
+                  key={lvl}
+                  className="w-[10px] rounded-sm transition-all"
+                  style={{
+                    height: 8 + lvl * 4,
+                    background: lvl <= score ? color : 'var(--color-border-mid)',
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-base font-semibold" style={{ color }}>{label}</span>
+          </div>
+        </button>
+      );
+    };
+
+    /* Tax score explanation modal — calibrated for Extra holidays (Neutral, 1) */
+    const TaxScoreModal = ({ onClose }) => {
+      const LEVELS = [
+        { score: 1, label: 'Neutral', color: '#8b8d96', desc: 'No meaningful tax advantage over a cash payout.' },
+        { score: 2, label: 'Good', color: '#2d7dd2', desc: 'NSSO-exempt, only withholding tax applies. You keep ~52% vs ~36% as cash.' },
+        { score: 3, label: 'Very good', color: '#1a9e5c', desc: 'Fully exempt from NSSO and withholding tax, giving near-gross payout.' },
+        { score: 4, label: 'Excellent', color: '#b83b62', desc: 'Maximum tax efficiency, e.g. warrants or meal vouchers. Close to 100% net retention.' },
+      ];
+      const current = TAX_SCORE;
+      return (
+        <Modal onClose={onClose} maxWidth={440}>
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight text-[var(--color-text-prominent)]">Tax score explained</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Every benefit has a tax score from Neutral to Excellent, based on how much of your gross budget you actually keep net.
+          </p>
+          <div className="flex flex-col gap-2 mb-5">
+            {LEVELS.map((l) => (
+              <div
+                key={l.score}
+                className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition"
+                style={{
+                  background: l.score === current ? 'var(--color-info-bg)' : 'var(--color-surface)',
+                  border: l.score === current ? '1.5px solid #c9d4f7' : '1px solid transparent',
+                }}
+              >
+                <div className="flex items-end gap-[2px] shrink-0 mt-0.5">
+                  {[1,2,3,4].map((lvl) => (
+                    <div key={lvl} className="w-[6px] rounded-sm" style={{ height: 5 + lvl * 3, background: lvl <= l.score ? l.color : 'var(--color-border-mid)' }} />
+                  ))}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold" style={{ color: l.color }}>{l.label}</span>
+                    {l.score === current && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: '#dbeafe', color: '#1d3a8a' }}>This benefit</span>}
+                  </div>
+                  <p className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{l.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="rounded-lg p-3 flex gap-2 items-start text-xs leading-4"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-default)' }}
+          >
+            <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" />
+            <span>Extra holidays scores <strong>Neutral</strong> because converting budget into paid days off is a salary-swap — the days are taxed the same way as cash salary. The value is in the time off itself, not in tax efficiency.</span>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* FAQ items — sourced from the Extra holidays Help Centre article + visible
+       Period accordion in production. Do not edit copy here without updating the
+       Help Centre article first. */
+    const FAQ_ITEMS = [
+      {
+        q: 'When can I take my extra holidays?',
+        a: "You can take your extra holidays from 07/05/2026 to 31/12/2026 — within the same calendar year. Note that you cannot transfer these holidays to next year.",
+      },
+      {
+        q: "What if I don't take all the days I chose?",
+        a: "The remaining budget for unused holidays will be paid out as a balance on your end-of-year bonus.",
+      },
+      {
+        q: 'What if I take more days than my budget covers?',
+        a: "Any shortfall will be deducted from your departure holiday pay.",
+        link: { label: 'Read the full policy in our Help Centre', href: 'https://help.payflip.be/en/articles/352559-extra-holidays-everything-you-need-to-know' },
+      },
+    ];
+
+    const FaqAccordion = () => {
+      const [openIndex, setOpenIndex] = useState(null);
+      return (
+        <div className="flex flex-col">
+          {FAQ_ITEMS.map((item, i) => (
+            <div key={i} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--color-border-light)' }}>
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between gap-3 py-3.5 text-left hover:opacity-70 transition"
+              >
+                <span className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{item.q}</span>
+                <Icon
+                  d={ICONS.chevron}
+                  size={16}
+                  className="shrink-0 transition-transform"
+                  style={{
+                    color: 'var(--color-text-muted)',
+                    transform: openIndex === i ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </button>
+              {openIndex === i && (
+                <div className="pb-4 anim-reveal">
+                  <p className="text-sm text-[var(--color-text-default)] leading-5">{item.a}</p>
+                  {item.link && (
+                    <a
+                      href={item.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-xs font-semibold underline hover:opacity-70 transition"
+                      style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}
+                    >
+                      {item.link.label}
+                      <Icon d={ICONS.arrowRight} size={12} />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          <div
+            className="flex items-center justify-between gap-3 pt-4 mt-2"
+            style={{ borderTop: '1px solid var(--color-border-light)' }}
+          >
+            <span className="text-xs text-[var(--color-text-muted)]">Still have questions?</span>
+            <a
+              href="https://help.payflip.be/en/articles/352559-extra-holidays-everything-you-need-to-know"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold underline hover:opacity-70 transition"
+              style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}
+            >
+              Visit our Help Centre →
+            </a>
+          </div>
+        </div>
+      );
+    };
+
+    /* Mobile-only tax score block shown in intro (side panel is hidden on mobile) */
+    const MobileIntroTaxScore = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="mobile-only px-5 mb-6">
+          <div
+            className="rounded-xl px-4 py-4"
+            style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+          >
+            <TaxScore score={TAX_SCORE} onClick={() => setOpen(true)} />
+          </div>
+          {open && <TaxScoreModal onClose={() => setOpen(false)} />}
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Screen 1 — Intro
+       ========================================================================= */
+    const IntroScreen = ({ onStart }) => (
+      <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+        <main className="flex-1 max-w-[760px]">
+          <div className="flex flex-col gap-4 px-5 pt-4 pb-6 relative">
+            <div
+              className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(212, 74, 116, 0.10) 0%, rgba(212, 74, 116, 0) 70%)',
+                filter: 'blur(20px)',
+              }}
+              aria-hidden
+            />
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight relative">Extra holidays</h1>
+            <div className="flex items-center gap-2 -mt-2 relative">
+              <span className="text-sm font-medium text-[var(--color-text-default)]">Direct choice</span>
+              <span className="text-[var(--color-text-muted)] text-sm">·</span>
+              <span className="text-sm font-medium text-[var(--color-text-muted)]">Up to 5 days/year</span>
+            </div>
+            <p className="text-base leading-6 text-[var(--color-text-default)] max-w-[640px] relative">
+              Interested in a better work-life balance? Then choose extra holiday via Payflip and redeem a few extra well-deserved (paid!) days of rest for this calendar year. 🏖
+            </p>
+          </div>
+
+          {/* BudgetPills with hover amounts — match canonical pension/joule pattern */}
+          <div className="px-5 flex flex-wrap gap-2 mb-6">
+            <BudgetPillWithAmount label="End of year premium" available="€1,450" />
+            <BudgetPillWithAmount label="Bonus" available="€700" />
+          </div>
+
+          {/* Mobile-only: Tax score (side panel is hidden on mobile) */}
+          <MobileIntroTaxScore />
+
+          {/* At a glance — value-card pattern, no financial preview */}
+          <div className="px-5">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-6 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+              At a glance
+            </h2>
+            <div className="glance-grid grid grid-cols-1 gap-2">
+              <ValueRow icon={ICONS.sun} label={`Up to ${config.maxDays} extra days off this calendar year`} />
+              <ValueRow icon={ICONS.wallet} label="Funded from your budgets" />
+              <ValueRow icon={ICONS.calendar} label="Use them like any other holiday day" />
+            </div>
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+          </div>
+
+          {/* How it works */}
+          <div className="px-5 pt-2 pb-6">
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-6 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+              How it works
+            </h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-6 howto-grid">
+              <Step n={1} title="Pick your days" body="Choose between 1 and 5 extra days. We'll show what each day costs from your budgets." />
+              <Step n={2} title="Choose your budget" body="Pick which budget(s) to fund this from. Split if one isn't enough." />
+              <Step n={3} title="HR approves" body="Your request goes to HR for confirmation." />
+              <Step n={4} title="Days added to your balance" body="Use them like any other holiday day — request through your normal flow." />
+            </div>
+          </div>
+
+          {/* FAQs — match canonical pension/joule pattern */}
+          <div className="px-5 pb-8">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+              FAQs
+            </h2>
+            <FaqAccordion />
+          </div>
+        </main>
+
+        <SideSummaryIntroWithAction onStart={onStart} />
+      </div>
+    );
+
+    const ValueRow = ({ icon, label }) => (
+      <div
+        className="rounded-lg px-4 py-3 flex items-center gap-3"
+        style={{ background: 'var(--color-surface)' }}
+      >
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: 'white' }}
+        >
+          <Icon d={icon} size={18} className="text-[var(--color-text-prominent)]" />
+        </div>
+        <div className="text-base text-[var(--color-text-prominent)] leading-6">{label}</div>
+      </div>
+    );
+
+    const SideSummaryIntroWithAction = ({ onStart }) => {
+      const [taxScoreOpen, setTaxScoreOpen] = useState(false);
+      return (
+        <>
+          <aside className="w-[416px] shrink-0 flex flex-col gap-10 pt-4">
+            <div
+              className="bg-white rounded-2xl p-8 flex flex-col gap-6"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+            >
+              <TaxScore score={TAX_SCORE} onClick={() => setTaxScoreOpen(true)} />
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+              <Button variant="primary" className="w-full" onClick={onStart}>Choose this benefit</Button>
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-[var(--color-text-default)] font-medium">
+                  2 steps · about 1 minute
+                </div>
+                <button className="text-xs font-medium text-[var(--color-text-default)] underline hover:opacity-70 transition" style={{ textUnderlineOffset: 3 }}>
+                  Terms and conditions
+                </button>
+              </div>
+            </div>
+          </aside>
+          {taxScoreOpen && <TaxScoreModal onClose={() => setTaxScoreOpen(false)} />}
+        </>
+      );
+    };
+
+    const Step = ({ n, title, body }) => (
+      <div className="flex gap-4 items-start">
+        <div
+          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm ff-poppins font-medium"
+          style={{ background: 'var(--color-strong)' }}
+        >
+          {n}
+        </div>
+        <div>
+          <div className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{title}</div>
+          <div className="text-sm text-[var(--color-text-default)] leading-5 mt-0.5">{body}</div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       Number stepper — main configure input for direct-choice flows
+       ========================================================================= */
+    const NumberStepper = ({ value, onChange, min, max }) => {
+      const [bumpKey, setBumpKey] = useState(0);
+
+      const setVal = (v) => {
+        const clamped = Math.max(min, Math.min(max, v));
+        if (clamped !== value) {
+          onChange(clamped);
+          setBumpKey((k) => k + 1);
+        }
+      };
+
+      return (
+        <div className="flex flex-col gap-3 max-w-[440px]">
+          <div className="flex items-center justify-center gap-6 py-6">
+            <button
+              onClick={() => setVal(value - 1)}
+              disabled={value <= min}
+              className="w-12 h-12 rounded-full flex items-center justify-center transition focus-ring"
+              style={{
+                background: value <= min ? 'var(--color-surface)' : 'white',
+                border: `1.5px solid ${value <= min ? 'var(--color-border-light)' : 'var(--color-border-mid)'}`,
+                color: value <= min ? 'var(--color-text-muted)' : 'var(--color-text-prominent)',
+                cursor: value <= min ? 'not-allowed' : 'pointer',
+              }}
+              aria-label="Decrease"
+            >
+              <Icon d={ICONS.minus} size={20} stroke={2} />
+            </button>
+
+            <div className="flex flex-col items-center gap-1 min-w-[160px]">
+              <div
+                key={bumpKey}
+                className="ff-display font-bold text-[64px] leading-none tracking-tight tabular-nums anim-bump"
+              >
+                {value}
+              </div>
+              <div className="text-sm font-medium text-[var(--color-text-default)]">
+                {value === 1 ? 'day' : 'days'}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setVal(value + 1)}
+              disabled={value >= max}
+              className="w-12 h-12 rounded-full flex items-center justify-center transition focus-ring"
+              style={{
+                background: value >= max ? 'var(--color-surface)' : 'white',
+                border: `1.5px solid ${value >= max ? 'var(--color-border-light)' : 'var(--color-border-mid)'}`,
+                color: value >= max ? 'var(--color-text-muted)' : 'var(--color-text-prominent)',
+                cursor: value >= max ? 'not-allowed' : 'pointer',
+              }}
+              aria-label="Increase"
+            >
+              <Icon d={ICONS.plus} size={20} stroke={2} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setVal(max)}
+              disabled={value >= max}
+              className={`text-sm font-semibold underline transition ${value >= max ? 'text-[var(--color-text-muted)] cursor-not-allowed' : 'text-[var(--color-text-prominent)] hover:opacity-70'}`}
+            >
+              Use max ({max} days)
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       RichRadio — for budget selector
+       ========================================================================= */
+    const RichRadio = ({ selected, disabled, onClick, title, sub, right }) => (
+      <button
+        onClick={onClick} disabled={disabled}
+        className={`group flex items-center gap-3 px-4 py-3.5 rounded-xl text-left w-full transition ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+        style={{
+          border: `1.5px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-light)'}`,
+          background: selected ? '#fdf5f8' : 'white',
+        }}
+      >
+        <div
+          className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center"
+          style={{ border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-mid)'}` }}
+        >
+          {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-primary)' }} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-base font-medium leading-6 text-[var(--color-text-prominent)]">{title}</div>
+          <div className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{sub}</div>
+        </div>
+        <div className="text-sm font-medium text-[var(--color-text-default)] tabular-nums shrink-0">{right}</div>
+      </button>
+    );
+
+    /* =========================================================================
+       Screen 2 — Configure (sub-step 0: stepper, sub-step 1: budget)
+       ========================================================================= */
+    const ConfigureScreen = ({ subStep, days, onDays, primary, secondary, onPrimary, onSecondary, onContinue, onBack }) => {
+      const contribution = days * dailyCost;
+      const employerCost = Math.round(contribution * config.employerCostRate);
+      const totalImpact = contribution + employerCost;
+      const primaryRem = primary ? POTS[primary].remaining : 0;
+      const primaryUsed = primary ? Math.min(totalImpact, primaryRem) : 0;
+      const remaining = totalImpact - primaryUsed;
+      const needsSecondary = primary && remaining > 0;
+
+      const handlePrimary = (id) => {
+        if (id === secondary) onSecondary(null);
+        onPrimary(id);
+      };
+
+      return (
+        <FlowFrame side={<SideSummary step="configure" subStep={subStep} days={days} primary={primary} secondary={secondary} />}>
+          {subStep === 0 && (
+            <>
+              <div className="pt-4 pb-6">
+                <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Pick the number of extra holidays 👇</h1>
+                <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+                  You can take up to {config.maxDays} extra holidays. 😎
+                </p>
+              </div>
+
+              <div className="pb-6">
+                <NumberStepper value={days} onChange={onDays} min={1} max={config.maxDays} />
+              </div>
+
+              <FlowActions onBack={onBack} onNext={onContinue} nextLabel="See budget impact" />
+            </>
+          )}
+
+          {subStep === 1 && (
+            <>
+              <div className="pt-4 pb-6">
+                <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Choose your budget</h1>
+                <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+                  Pick a budget to fund your extra holidays. Split across both if one isn't enough.
+                </p>
+              </div>
+
+              <div className="pb-6 flex flex-col gap-6">
+                <div>
+                  <div className="text-sm font-semibold mb-1">Fund €{totalImpact.toLocaleString('en-BE')} from your budgets</div>
+                  <div className="text-xs text-[var(--color-text-default)] mb-3 flex items-center gap-1.5">
+                    <Icon d={ICONS.info} size={12} />
+                    €{contribution.toLocaleString('en-BE')} contribution + €{employerCost.toLocaleString('en-BE')} employer cost (8.86%)
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {Object.values(POTS).map((p) => (
+                      <RichRadio
+                        key={p.id}
+                        selected={primary === p.id}
+                        onClick={() => handlePrimary(p.id)}
+                        title={p.label}
+                        sub={p.sub}
+                        right={`€${p.remaining.toLocaleString('en-BE')} available`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {primary && needsSecondary && (
+                  <div className="anim-reveal">
+                    <div className="text-sm font-semibold mb-3">Pay remaining €{remaining.toLocaleString('en-BE')} with</div>
+                    <div className="flex flex-col gap-2">
+                      {Object.values(POTS).filter(p => p.id !== primary).map((p) => (
+                        <RichRadio
+                          key={p.id}
+                          selected={secondary === p.id}
+                          onClick={() => onSecondary(p.id)}
+                          title={p.label}
+                          sub={p.sub}
+                          right={`€${p.remaining.toLocaleString('en-BE')} available`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <FlowActions
+                onBack={onBack}
+                onNext={onContinue}
+                nextDisabled={!primary || (needsSecondary && !secondary)}
+                nextLabel="Review choice"
+              />
+            </>
+          )}
+        </FlowFrame>
+      );
+    };
+
+    /* =========================================================================
+       Timeline (used on review + success)
+       ========================================================================= */
+    const Timeline = ({ items }) => (
+      <div className="flex flex-col">
+        {items.map((item, i) => (
+          <React.Fragment key={i}>
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 mt-0.5 w-4 h-4 flex items-center justify-center">
+                {item.state === 'done' && (
+                  <Icon d={ICONS.check} size={14} stroke={2.5} style={{ color: 'var(--color-text-prominent)' }} />
+                )}
+                {item.state === 'current' && (
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ background: 'var(--color-success-text)', boxShadow: '0 0 0 4px rgba(8, 99, 67, 0.15)' }}
+                  />
+                )}
+                {item.state === 'pending' && (
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-text-muted)' }} />
+                )}
+              </div>
+              <div className="flex flex-col gap-0.5 pb-0.5">
+                <p
+                  className={`text-sm leading-5 ${item.state === 'current' ? 'font-semibold text-[var(--color-text-prominent)]' : 'font-medium'}`}
+                  style={{
+                    color: item.state === 'current'
+                      ? 'var(--color-text-prominent)'
+                      : item.state === 'done'
+                        ? 'var(--color-text-default)'
+                        : 'var(--color-text-default)',
+                  }}
+                >
+                  {item.title}
+                </p>
+                {item.sub && <p className="text-xs leading-4 text-[var(--color-text-muted)]">{item.sub}</p>}
+              </div>
+            </div>
+            {i < items.length - 1 && (
+              <div className="ml-2 my-1 h-5 w-px" style={{ background: 'var(--color-border-mid)' }} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+
+    /* =========================================================================
+       Screen 3 — Review
+       ========================================================================= */
+    const ReviewScreen = ({ days, primary, secondary, tcsAccepted, onTcsToggle, onSubmit, onBack, onEditDays, onEditBudget }) => {
+      const [tcsError, setTcsError] = useState(false);
+      const contribution = days * dailyCost;
+      const employerCost = Math.round(contribution * config.employerCostRate);
+      const totalImpact = contribution + employerCost;
+      const primaryUsed = primary ? Math.min(totalImpact, POTS[primary].remaining) : 0;
+      const secondaryUsed = totalImpact - primaryUsed;
+      // Cascade rule from skill: editing days can leave allocation invalid (primary
+      // no longer covers, no secondary set). Surface on the budget card.
+      const secondaryRem = secondary ? POTS[secondary].remaining : 0;
+      const budgetCovers = primary && (primaryUsed + Math.min(secondaryUsed, secondaryRem) >= totalImpact);
+      const budgetOverflow = primary && !budgetCovers;
+      const fmt = (n) => n.toLocaleString('en-BE');
+
+      const handleSubmit = () => {
+        if (budgetOverflow) return; // skill rule: don't allow submit while cascade is unresolved
+        if (!tcsAccepted) { setTcsError(true); return; }
+        onSubmit();
+      };
+
+      const reviewTimeline = [
+        { state: 'pending', title: 'After you click confirm below' },
+        { state: 'pending', title: 'HR reviews & approves your request' },
+        { state: 'pending', title: 'Budget deducted from your Payflip budget', sub: 'On approval' },
+        { state: 'pending', title: 'Days added to your holiday balance', sub: 'On approval' },
+      ];
+
+      const sideCard = (
+        <aside className="w-[416px] shrink-0">
+          <div
+            className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+            style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+          >
+            <div>
+              <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                Will be deducted
+              </div>
+              <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)]">
+                €{fmt(totalImpact)}
+              </div>
+              <div className="text-xs text-[var(--color-text-default)] mt-1.5">
+                From your {sourceLabel(primary)}{secondary ? ` and ${sourceLabel(secondary)}` : ''}, on confirmation
+              </div>
+            </div>
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+            <div className="flex flex-col gap-2">
+              <Checkbox checked={tcsAccepted} onChange={(v) => { onTcsToggle(v); if (v) setTcsError(false); }} id="tcs-accept">
+                I accept the{' '}
+                <button
+                  type="button" onClick={(e) => e.stopPropagation()}
+                  className="underline font-medium hover:opacity-70"
+                >
+                  Terms and Conditions
+                </button>
+              </Checkbox>
+              {tcsError && (
+                <div
+                  className="flex items-start gap-1.5 text-xs anim-reveal"
+                  style={{ color: 'var(--color-warning-text)' }}
+                >
+                  <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" />
+                  <span>Please accept the terms and conditions to continue.</span>
+                </div>
+              )}
+            </div>
+
+            <Button variant="primary" className="w-full" onClick={handleSubmit}>
+              Submit choice
+            </Button>
+          </div>
+        </aside>
+      );
+
+      return (
+        <FlowFrame side={sideCard}>
+          <div className="pt-4 pb-6">
+            <button
+              onClick={onBack}
+              className="desktop-only inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)] transition mb-4 -ml-1"
+            >
+              <Icon d={ICONS.arrowLeft} size={16} />
+              Back
+            </button>
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Review your choice</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              Check everything before submitting. Approved days will appear in your holiday balance.
+            </p>
+          </div>
+
+          <div className="pb-6 flex flex-col gap-3">
+            <CollapsedCard
+              label="Days off"
+              value={`${days} day${days === 1 ? '' : 's'}`}
+              onEdit={onEditDays}
+            />
+            <div
+              className="rounded-xl px-5 py-4"
+              style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+            >
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">Budget</div>
+                <Button variant="secondary" size="sm" onClick={onEditBudget}>Edit</Button>
+              </div>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[var(--color-text-prominent)]">{POTS[primary].label}</span>
+                  <span className="tabular-nums font-medium">€{fmt(primaryUsed)}</span>
+                </div>
+                {secondary && (
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[var(--color-text-prominent)]">{POTS[secondary].label}</span>
+                    <span className="tabular-nums font-medium">€{fmt(secondaryUsed)}</span>
+                  </div>
+                )}
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1.5" />
+                <div className="flex items-baseline justify-between">
+                  <span className="font-semibold text-[var(--color-text-prominent)]">Total impact</span>
+                  <span className="tabular-nums font-semibold text-[var(--color-text-prominent)]">€{fmt(totalImpact)}</span>
+                </div>
+                <div className="text-xs text-[var(--color-text-default)] -mt-0.5">
+                  incl. €{fmt(employerCost)} employer cost (8.86%)
+                </div>
+                {budgetOverflow && (
+                  <div
+                    className="mt-3 rounded-lg p-3 flex gap-2.5 items-start anim-reveal"
+                    style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)' }}
+                  >
+                    <Icon d={ICONS.alert} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-warning-text)' }} />
+                    <div className="text-sm leading-5" style={{ color: 'var(--color-warning-text)' }}>
+                      Your selected budget no longer covers €{fmt(totalImpact)}.{' '}
+                      <button onClick={onEditBudget} className="underline font-semibold hover:opacity-70">
+                        Edit budget
+                      </button>{' '}to split across pots.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Timeline — required for choice flows */}
+            <div
+              className="rounded-xl px-5 py-4 mt-2"
+              style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+            >
+              <h3 className="text-base font-semibold ff-display mb-3">What happens after you confirm</h3>
+              <Timeline items={reviewTimeline} />
+            </div>
+          </div>
+        </FlowFrame>
+      );
+    };
+
+    const CollapsedCard = ({ label, value, onEdit }) => (
+      <div
+        className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+        style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+      >
+        <div className="min-w-0">
+          <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">{label}</div>
+          <div className="text-base font-medium mt-0.5 truncate">{value}</div>
+        </div>
+        <Button variant="secondary" size="sm" onClick={onEdit}>Edit</Button>
+      </div>
+    );
+
+    /* =========================================================================
+       Screen 4 — Success
+       ========================================================================= */
+    const SuccessScreen = ({ days, primary, secondary, totalImpact, onViewClaim, onBackToBenefits }) => {
+      const fmt = (n) => n.toLocaleString('en-BE');
+      const successTimeline = [
+        { state: 'done', title: 'Choice submitted', sub: 'Just now' },
+        { state: 'current', title: 'HR reviews & approves your request' },
+        { state: 'pending', title: 'Budget deducted from your Payflip budget', sub: 'On approval' },
+        { state: 'pending', title: 'Days added to your holiday balance', sub: 'On approval' },
+      ];
+      return (
+        <div className="max-w-[600px] mx-auto px-6 pt-16 pb-8">
+          <div className="flex flex-col items-center text-center mb-8">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center mb-6 anim-success-pop relative"
+              style={{ border: '1.5px solid var(--color-success-text)' }}
+            >
+              <div
+                className="absolute inset-0 rounded-full anim-success-ring"
+                style={{ background: 'var(--color-success-bg)' }}
+              />
+              <svg
+                width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ color: 'var(--color-success-text)' }}
+                className="relative"
+              >
+                <path className="anim-draw-check" d="m5 12 5 5L20 7" />
+              </svg>
+            </div>
+            <h1 className="ff-poppins font-semibold text-2xl tracking-tight text-[var(--color-text-prominent)] mb-2">
+              Extra holidays submitted!
+            </h1>
+            <p className="text-sm text-[var(--color-text-default)]">
+              {days} day{days === 1 ? '' : 's'} · €{fmt(totalImpact)} from {sourceLabel(primary)}{secondary ? ' + ' + sourceLabel(secondary) : ''} · awaiting HR confirmation
+            </p>
+          </div>
+
+          <div
+            className="rounded-2xl p-4 flex flex-col gap-3"
+            style={{ border: '1px solid var(--color-border-light)' }}
+          >
+            <div className="text-base font-semibold ff-display">What happens next</div>
+            <Timeline items={successTimeline} />
+          </div>
+
+          <div className="flex flex-col gap-2 mt-6">
+            <Button variant="primary" className="w-full" onClick={onViewClaim}>View choice</Button>
+            <Button variant="secondary" className="w-full" onClick={onBackToBenefits}>Back to benefits</Button>
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Screen 5 — Benefit detail (after submission)
+       Two states: pending (HR review) | active (approved, days in balance)
+       Mirrors the canonical pattern from pension + joule references.
+       For Extra holidays specifically:
+       - 'pending': just submitted, HR review in progress
+       - 'active': HR approved, days added to balance, budget deducted
+       ========================================================================= */
+    const BenefitDetailScreen = ({ days, primary, secondary, status, onCancel, onSetStatus }) => {
+      const fmt = (n) => n.toLocaleString('en-BE');
+      const contribution = days * dailyCost;
+      const employerCost = Math.round(contribution * config.employerCostRate);
+      const totalImpact = contribution + employerCost;
+      const primaryUsed = primary ? Math.min(totalImpact, POTS[primary].remaining) : 0;
+      const secondaryUsed = totalImpact - primaryUsed;
+
+      // Status-aware timeline — pending shows live progress, active shows completed history
+      const timeline = status === 'pending'
+        ? [
+            { state: 'done', title: 'Choice submitted', sub: 'Today, 14:32' },
+            { state: 'current', title: 'HR reviews & approves your request' },
+            { state: 'pending', title: `${days} day${days === 1 ? '' : 's'} added to your holiday balance`, sub: 'On approval' },
+            { state: 'pending', title: `€${fmt(totalImpact)} deducted from your budget`, sub: 'On next payslip cycle' },
+          ]
+        : [
+            { state: 'done', title: 'Choice submitted', sub: '12 May 2026' },
+            { state: 'done', title: 'HR approved', sub: '14 May 2026' },
+            { state: 'done', title: `${days} day${days === 1 ? '' : 's'} added to your holiday balance`, sub: '14 May 2026' },
+            { state: 'done', title: `€${fmt(totalImpact)} deducted from your budget`, sub: '25 May 2026 payslip' },
+          ];
+
+      // Status-aware header copy
+      const headerMeta = status === 'pending' ? '· submitted today' : '· active since 14 May';
+      const headerDesc = status === 'pending'
+        ? "Your choice is being reviewed by HR. Once approved, the days will appear in your holiday balance."
+        : `Your choice was approved. ${days} day${days === 1 ? '' : 's'} ${days === 1 ? 'is' : 'are'} now available in your holiday balance — request them like any other holiday day.`;
+
+      return (
+        <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+          <main className="flex-1 max-w-[760px]">
+            {/* Header */}
+            <div className="flex flex-col gap-3 px-5 pt-4 pb-6 relative">
+              <div
+                className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse at center, rgba(212, 74, 116, 0.10) 0%, rgba(212, 74, 116, 0) 70%)',
+                  filter: 'blur(20px)',
+                }}
+                aria-hidden
+              />
+              <div className="flex items-center gap-3 relative flex-wrap">
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">Extra holidays</div>
+                {status === 'pending' && <Pill tone="warning">Pending review</Pill>}
+                {status === 'active' && <Pill tone="success">Active · in your balance</Pill>}
+              </div>
+              <div className="text-sm font-medium text-[var(--color-text-default)] relative">
+                Direct choice {headerMeta}
+              </div>
+              <p className="text-base leading-6 text-[var(--color-text-default)] max-w-[640px] relative">
+                {headerDesc}
+              </p>
+            </div>
+
+            {/* Status timeline */}
+            <div className="px-5">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+                Status
+              </h2>
+              <div
+                className="rounded-xl p-5"
+                style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+              >
+                <Timeline items={timeline} />
+              </div>
+            </div>
+
+            {/* Choice details */}
+            <div className="px-5 pt-2 pb-6">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+                Choice details
+              </h2>
+              <div
+                className="rounded-xl px-5 py-4 flex flex-col gap-2 text-sm"
+                style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+              >
+                <DetailRow label="Days off" value={`${days} day${days === 1 ? '' : 's'}`} />
+                <DetailRow label="Funded from" value={primary ? POTS[primary].label : '—'} />
+                {secondary && (
+                  <DetailRow label="+ Remaining from" value={POTS[secondary].label} />
+                )}
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1.5" />
+                <DetailRow label="Total budget impact" value={`€${fmt(totalImpact)}`} bold />
+                <div className="text-xs text-[var(--color-text-default)] -mt-0.5">
+                  incl. €{fmt(employerCost)} employer cost (8.86%)
+                </div>
+              </div>
+            </div>
+
+            {/* Demo state toggle — visible on both desktop and mobile so testers can preview both states */}
+            <div className="px-5 pt-2 pb-6 flex justify-center">
+              <button
+                onClick={() => onSetStatus(status === 'pending' ? 'active' : 'pending')}
+                className="text-xs text-[var(--color-text-muted)] hover:opacity-70 underline"
+              >
+                (demo: switch to {status === 'pending' ? 'active' : 'pending'} state)
+              </button>
+            </div>
+          </main>
+
+          {/* Side panel */}
+          <aside className="w-[416px] shrink-0">
+            <div
+              className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+            >
+              <div>
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                  {status === 'pending' ? 'Days awaiting approval' : 'Days in your balance'}
+                </div>
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">
+                  {days} day{days === 1 ? '' : 's'}
+                </div>
+                <div className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                  {status === 'pending'
+                    ? `€${fmt(totalImpact)} on hold from your budgets`
+                    : `€${fmt(totalImpact)} deducted from your budgets`}
+                </div>
+              </div>
+
+              {/* Actions — pending shows Cancel, active shows nothing (days are already in balance) */}
+              {status === 'pending' && (
+                <>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <Button variant="secondary" className="w-full" onClick={onCancel}>Cancel choice</Button>
+                </>
+              )}
+            </div>
+          </aside>
+        </div>
+      );
+    };
+
+    const DetailRow = ({ label, value, bold }) => (
+      <div className="flex items-baseline justify-between">
+        <span className={bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-default)]'}>{label}</span>
+        <span className={`tabular-nums ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'font-medium text-[var(--color-text-prominent)]'}`}>{value}</span>
+      </div>
+    );
+
+    /* =========================================================================
+       Modal primitive — used by edit modals on Review
+       ========================================================================= */
+    const Modal = ({ children, onClose, maxWidth = 480 }) => (
+      <div className="modal-overlay fixed inset-0 z-40 flex items-center justify-center anim-fade">
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div
+          className="modal-card relative bg-white rounded-2xl anim-scale w-full mx-4 flex flex-col"
+          style={{ boxShadow: 'var(--shadow-modal)', maxWidth }}
+        >
+          <div className="p-6 overflow-y-auto">{children}</div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       Edit modals — opened from Review (per skill: focused modal, never navigate-back)
+       ========================================================================= */
+    const EditDaysModal = ({ days, onSave, onClose }) => {
+      const [val, setVal] = useState(days);
+      const tooHigh = val > config.maxDays;
+      const tooLow = val < 1;
+
+      return (
+        <Modal onClose={onClose} maxWidth={460}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-poppins font-semibold text-xl leading-8 tracking-tight">Edit days</h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+              aria-label="Close"
+            >
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Each day costs ~€{dailyCost} from your budgets. Up to {config.maxDays} per year.
+          </p>
+
+          <NumberStepper value={val} onChange={setVal} min={1} max={config.maxDays} />
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button
+              variant="primary" className="flex-1"
+              disabled={tooHigh || tooLow}
+              onClick={() => { onSave(val); onClose(); }}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    const EditBudgetModal = ({ days, primary, secondary, onSave, onClose }) => {
+      const contribution = days * dailyCost;
+      const employerCost = Math.round(contribution * config.employerCostRate);
+      const totalImpact = contribution + employerCost;
+      const [p, setP] = useState(primary);
+      const [s, setS] = useState(secondary);
+      const primaryPot = p ? POTS[p] : null;
+      const primaryUsed = primaryPot ? Math.min(totalImpact, primaryPot.remaining) : 0;
+      const remaining = totalImpact - primaryUsed;
+      const needsSecondary = remaining > 0;
+
+      const handlePrimary = (id) => {
+        if (id === s) setS(null);
+        setP(id);
+      };
+
+      const canSave = p && (!needsSecondary || s);
+
+      return (
+        <Modal onClose={onClose} maxWidth={560}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-poppins font-semibold text-xl leading-8 tracking-tight">Edit budget allocation</h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+              aria-label="Close"
+            >
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Pick a budget to convert into extra holidays. Split if one isn't enough.
+          </p>
+
+          <div className="text-sm font-semibold mb-1">Fund €{totalImpact.toLocaleString('en-BE')} from your budgets</div>
+          <div className="text-xs text-[var(--color-text-default)] mb-3 flex items-center gap-1.5">
+            <Icon d={ICONS.info} size={12} />
+            €{contribution.toLocaleString('en-BE')} contribution + €{employerCost.toLocaleString('en-BE')} employer cost (8.86%)
+          </div>
+          <div className="flex flex-col gap-2 mb-4">
+            {Object.values(POTS).map((pot) => (
+              <RichRadio
+                key={pot.id}
+                selected={p === pot.id}
+                onClick={() => handlePrimary(pot.id)}
+                title={pot.label}
+                sub={pot.sub}
+                right={`€${pot.remaining.toLocaleString('en-BE')} available`}
+              />
+            ))}
+          </div>
+
+          {p && needsSecondary && (
+            <div className="anim-reveal">
+              <div className="text-sm font-semibold mb-3">Pay remaining €{remaining.toLocaleString('en-BE')} with</div>
+              <div className="flex flex-col gap-2">
+                {Object.values(POTS).filter((pot) => pot.id !== p).map((pot) => (
+                  <RichRadio
+                    key={pot.id}
+                    selected={s === pot.id}
+                    onClick={() => setS(pot.id)}
+                    title={pot.label}
+                    sub={pot.sub}
+                    right={`€${pot.remaining.toLocaleString('en-BE')} available`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button
+              variant="primary" className="flex-1"
+              disabled={!canSave}
+              onClick={() => { onSave({ primary: p, secondary: needsSecondary ? s : null }); onClose(); }}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* =========================================================================
+       Cancel choice confirmation dialog (opened from BenefitDetailScreen)
+       ========================================================================= */
+    const CancelChoiceDialog = ({ onConfirm, onClose }) => (
+      <Modal onClose={onClose} maxWidth={420}>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="ff-poppins font-semibold text-xl leading-8 tracking-tight">Cancel your choice?</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+            aria-label="Close"
+          >
+            <Icon d={ICONS.x} size={16} />
+          </button>
+        </div>
+        <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+          Your submission will be removed and your budget allocations released. You can submit a new choice anytime within the calendar year.
+        </p>
+        <div className="flex gap-3 mt-6">
+          <Button variant="secondary" className="flex-1" onClick={onClose}>Keep choice</Button>
+          <Button variant="primary" className="flex-1" onClick={onConfirm}>Cancel choice</Button>
+        </div>
+      </Modal>
+    );
+
+    /* =========================================================================
+       Flow frame & actions
+       ========================================================================= */
+    const FlowFrame = ({ side, children }) => (
+      <div className="max-w-[1248px] mx-auto px-6 pt-6 pb-4">
+        <div className="flow-row flex gap-6">
+          <main className="flex-1 max-w-[760px]">{children}</main>
+          {side}
+        </div>
+      </div>
+    );
+
+    const FlowActions = ({ onBack, onNext, nextDisabled, nextLabel }) => (
+      <div className="flow-actions-desktop pt-4 pb-2 flex items-center gap-3">
+        <Button variant="secondary" onClick={onBack} leftIcon={<Icon d={ICONS.arrowLeft} size={16} />}>Back</Button>
+        <Button variant="primary" onClick={onNext} disabled={nextDisabled} rightIcon={<Icon d={ICONS.arrowRight} size={16} />}>
+          {nextLabel}
+        </Button>
+      </div>
+    );
+
+    /* =========================================================================
+       Moderator panel
+       ========================================================================= */
+    const ModeratorPanel = ({ step, subStep, onJump, onReset, taskMode, onToggleTask, device, onSetDevice }) => {
+      const [open, setOpen] = useState(false);
+      const screens = [
+        { label: '1. Intro', step: 0, subStep: 0 },
+        { label: '2. Configure · Days', step: 1, subStep: 0 },
+        { label: '3. Configure · Budget', step: 1, subStep: 1 },
+        { label: '4. Review', step: 2, subStep: 0 },
+        { label: '5. Success', step: 3, subStep: 0 },
+        { label: '6. Detail · Pending', step: 4, subStep: 0 },
+      ];
+      return (
+        <div className="moderator-panel fixed bottom-4 right-4 z-50 ff-poppins">
+          {open && (
+            <div
+              className="bg-[var(--color-strong)] text-white rounded-xl p-4 mb-2 w-72 anim-fade"
+              style={{ boxShadow: 'var(--shadow-modal)' }}
+            >
+              <div className="text-[11px] uppercase tracking-wider opacity-60 mb-3 font-semibold">Moderator panel</div>
+
+              <div className="mb-4">
+                <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Device</div>
+                <div className="flex gap-1 bg-white/10 rounded-md p-1">
+                  <button
+                    onClick={() => onSetDevice('desktop')}
+                    className={`flex-1 px-2 py-1 rounded text-xs transition ${device === 'desktop' ? 'bg-white text-[var(--color-strong)] font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    Desktop
+                  </button>
+                  <button
+                    onClick={() => onSetDevice('mobile')}
+                    className={`flex-1 px-2 py-1 rounded text-xs transition ${device === 'mobile' ? 'bg-white text-[var(--color-strong)] font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    Mobile
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Screen</div>
+              <div className="flex flex-col gap-1.5 mb-4">
+                {screens.map((s) => (
+                  <button
+                    key={s.label}
+                    onClick={() => onJump(s.step, s.subStep)}
+                    className={`text-left px-3 py-1.5 rounded-md text-xs transition ${step === s.step && subStep === s.subStep ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                <label className="flex items-center gap-2 cursor-pointer text-xs">
+                  <input type="checkbox" checked={taskMode} onChange={onToggleTask} />
+                  Show task to participant
+                </label>
+                <button
+                  onClick={onReset}
+                  className="text-left px-3 py-1.5 rounded-md text-xs bg-white/10 hover:bg-white/20 transition"
+                >
+                  ↺ Reset prototype
+                </button>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setOpen(!open)}
+            className="bg-[var(--color-strong)] text-white rounded-full px-4 py-2.5 text-xs font-semibold hover:opacity-90 flex items-center gap-2"
+            style={{ boxShadow: 'var(--shadow-modal)' }}
+          >
+            <Icon d={ICONS.sparkle} size={14} />
+            {open ? 'Hide' : 'Moderator'}
+          </button>
+        </div>
+      );
+    };
+
+    const TaskBanner = ({ task }) => task ? (
+      <div className="sticky top-[60px] z-20 mx-auto max-w-[1248px] px-6 pt-3">
+        <div
+          className="rounded-xl px-4 py-3 flex items-start gap-3 anim-fade"
+          style={{ background: '#fff8e6', border: '1px solid #f4c77d' }}
+        >
+          <Icon d={ICONS.sparkle} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-warning-text)' }} />
+          <div className="text-sm leading-5" style={{ color: 'var(--color-warning-text)' }}>
+            <span className="font-semibold">Task: </span>{task}
+          </div>
+        </div>
+      </div>
+    ) : null;
+
+    /* =========================================================================
+       App
+       ========================================================================= */
+    const TASKS = {
+      '0-0': "You've heard you can convert part of your bonus into extra paid days off. Take a look at this page and tell me what you understand.",
+      '1-0': "You'd like to take 3 extra days off this year. Set the number of days.",
+      '1-1': "Choose where to fund this from. Tell me what you see.",
+      '2-0': "Take a final look. If everything checks out, submit your choice.",
+      '3-0': "Tell me what you understand from this screen.",
+      '4-0': "You've come back to check your benefit later. Tell me what you understand about its current state.",
+    };
+
+    function App() {
+      const [step, setStep] = useState(0);
+      const [subStep, setSubStep] = useState(0);
+      const [prevStep, setPrevStep] = useState(0);
+      const [days, setDays] = useState(config.defaultDays);
+      const [primary, setPrimary] = useState(null);
+      const [secondary, setSecondary] = useState(null);
+      const [tcsAccepted, setTcsAccepted] = useState(false);
+      const [tcsErrorMobile, setTcsErrorMobile] = useState(false);
+      const [taskMode, setTaskMode] = useState(false);
+      const [device, setDevice] = useState('desktop');
+      const [editModal, setEditModal] = useState(null); // 'days' | 'budget' | null
+      const [benefitStatus, setBenefitStatus] = useState('pending'); // pending | active
+      const [cancelDialog, setCancelDialog] = useState(false);
+
+      const direction = step >= prevStep ? 'forward' : 'back';
+      useEffect(() => { setPrevStep(step); }, [step]);
+      useEffect(() => { setTcsErrorMobile(false); }, [step]);
+      const animClass = direction === 'forward' ? 'anim-page-forward' : 'anim-page-back';
+
+      // Auto-clear secondary if primary now covers full impact
+      useEffect(() => {
+        if (primary) {
+          const totalImpact = days * dailyCost + Math.round(days * dailyCost * config.employerCostRate);
+          if (totalImpact <= POTS[primary].remaining) setSecondary(null);
+        }
+      }, [primary, days]);
+
+      const reset = () => {
+        setStep(0); setSubStep(0); setDays(config.defaultDays);
+        setPrimary(null); setSecondary(null); setTcsAccepted(false);
+        setBenefitStatus('pending'); setCancelDialog(false);
+      };
+
+      const jumpTo = (s, sub) => {
+        setStep(s); setSubStep(sub);
+        if (s >= 1 && sub >= 1 && !primary) setPrimary('eoy'); // EOY covers 5 days at 100% FTE
+        if (s >= 2 && !primary) setPrimary('eoy');
+        if (s >= 2 && !tcsAccepted) setTcsAccepted(true);
+        if (s === 4) setBenefitStatus('pending'); // initialize detail-screen state when jumping in
+      };
+
+      // Mobile bottom bar — per step
+      const renderMobileBottomBar = () => {
+        const fmt = (n) => n.toLocaleString('en-BE');
+        const contribution = days * dailyCost;
+        const employerCost = Math.round(contribution * config.employerCostRate);
+        const totalImpact = contribution + employerCost;
+
+        if (step === 3) return null; // success has its own buttons
+
+        if (step === 0) {
+          return (
+            <BottomBarSplit
+              infoTop="Save up to"
+              infoMain="5 days off"
+              infoSub="Funded from your budgets"
+              action={<Button variant="primary" className="w-full" onClick={() => { setStep(1); setSubStep(0); }}>Choose</Button>}
+            />
+          );
+        }
+
+        if (step === 1 && subStep === 0) {
+          return (
+            <BottomBarSplit
+              infoTop="Your choice"
+              infoMain={`${days} day${days === 1 ? '' : 's'}`}
+              infoSub="Funded from your budgets"
+              action={<Button variant="primary" className="w-full" onClick={() => setSubStep(1)}>See budget impact</Button>}
+            />
+          );
+        }
+
+        if (step === 1 && subStep === 1) {
+          const primaryRem = primary ? POTS[primary].remaining : 0;
+          const needsSecondary = primary && totalImpact > primaryRem;
+          const ready = primary && (!needsSecondary || secondary);
+          return (
+            <BottomBarSplit
+              infoTop="Pay from budgets"
+              infoMain={`€${fmt(totalImpact)}`}
+              infoSub={`for ${days} day${days === 1 ? '' : 's'}`}
+              action={<Button variant="primary" className="w-full" onClick={() => setStep(2)} disabled={!ready}>Continue</Button>}
+            />
+          );
+        }
+
+        if (step === 2) {
+          return (
+            <div className="flex flex-col gap-3">
+              <Checkbox
+                checked={tcsAccepted}
+                onChange={(v) => { setTcsAccepted(v); if (v) setTcsErrorMobile(false); }}
+                id="tcs-accept-mobile"
+              >
+                I accept the{' '}
+                <button type="button" onClick={(e) => e.stopPropagation()} className="underline link-underline hover:opacity-70">
+                  terms & conditions
+                </button>.
+              </Checkbox>
+              {tcsErrorMobile && (
+                <div className="flex items-start gap-1.5 text-xs anim-reveal" style={{ color: 'var(--color-warning-text)' }}>
+                  <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" />
+                  <span>Please accept the terms and conditions to continue.</span>
+                </div>
+              )}
+              <Button
+                variant="primary" className="w-full"
+                onClick={() => {
+                  if (!tcsAccepted) { setTcsErrorMobile(true); return; }
+                  setStep(3);
+                }}
+              >
+                Submit choice
+              </Button>
+            </div>
+          );
+        }
+
+        if (step === 4 && benefitStatus === 'pending') {
+          return (
+            <BottomBarSplit
+              infoTop="Status"
+              infoMain="Pending"
+              infoSub="Awaiting HR approval"
+              action={<Button variant="secondary" className="w-full" onClick={() => setCancelDialog(true)}>Cancel choice</Button>}
+            />
+          );
+        }
+        // step === 4 && benefitStatus === 'active' → no action needed; days are in balance
+        return null;
+      };
+
+      const totalImpact = days * dailyCost + Math.round(days * dailyCost * config.employerCostRate);
+
+      const appContent = (
+        <>
+          <TopNav active="Benefits" />
+          {step !== 3 && (
+            <MobileFlowHeader
+              onBack={
+                step === 0
+                  ? null
+                  : step === 1 && subStep === 0
+                    ? () => setStep(0)
+                    : step === 1 && subStep === 1
+                      ? () => setSubStep(0)
+                      : step === 4
+                        ? reset
+                        : () => setStep(step - 1)
+              }
+            />
+          )}
+          {taskMode && <TaskBanner task={TASKS[`${step}-${subStep}`]} />}
+
+          {/* Stepper — only on configure */}
+          {step === 1 && (
+            <div className="max-w-[1248px] mx-auto px-6 pt-4 stepper-shell">
+              <Stepper current={subStep} />
+            </div>
+          )}
+
+          <div className="mobile-scroll-area">
+            <div key={`${step}-${subStep}`} className={animClass}>
+              {step === 0 && <IntroScreen onStart={() => { setStep(1); setSubStep(0); }} />}
+              {step === 1 && (
+                <ConfigureScreen
+                  subStep={subStep}
+                  days={days}
+                  onDays={setDays}
+                  primary={primary}
+                  secondary={secondary}
+                  onPrimary={setPrimary}
+                  onSecondary={setSecondary}
+                  onContinue={() => subStep === 0 ? setSubStep(1) : setStep(2)}
+                  onBack={() => subStep === 0 ? setStep(0) : setSubStep(0)}
+                />
+              )}
+              {step === 2 && (
+                <ReviewScreen
+                  days={days}
+                  primary={primary}
+                  secondary={secondary}
+                  tcsAccepted={tcsAccepted}
+                  onTcsToggle={setTcsAccepted}
+                  onSubmit={() => setStep(3)}
+                  onBack={() => { setStep(1); setSubStep(1); }}
+                  onEditDays={() => setEditModal('days')}
+                  onEditBudget={() => setEditModal('budget')}
+                />
+              )}
+              {step === 3 && (
+                <SuccessScreen
+                  days={days}
+                  primary={primary}
+                  secondary={secondary}
+                  totalImpact={totalImpact}
+                  onViewClaim={() => { setBenefitStatus('pending'); setStep(4); }}
+                  onBackToBenefits={reset}
+                />
+              )}
+              {step === 4 && (
+                <BenefitDetailScreen
+                  days={days}
+                  primary={primary}
+                  secondary={secondary}
+                  status={benefitStatus}
+                  onCancel={() => setCancelDialog(true)}
+                  onSetStatus={setBenefitStatus}
+                />
+              )}
+            </div>
+          </div>
+
+          {renderMobileBottomBar() && (
+            <MobileBottomBar>{renderMobileBottomBar()}</MobileBottomBar>
+          )}
+
+          {/* Edit modals — opened from Review */}
+          {editModal === 'days' && (
+            <EditDaysModal
+              days={days}
+              onSave={(v) => setDays(v)}
+              onClose={() => setEditModal(null)}
+            />
+          )}
+          {editModal === 'budget' && (
+            <EditBudgetModal
+              days={days}
+              primary={primary}
+              secondary={secondary}
+              onSave={({ primary: p, secondary: s }) => { setPrimary(p); setSecondary(s); }}
+              onClose={() => setEditModal(null)}
+            />
+          )}
+
+          {/* Cancel-choice confirmation — opened from BenefitDetailScreen pending-state */}
+          {cancelDialog && (
+            <CancelChoiceDialog
+              onConfirm={() => { setCancelDialog(false); reset(); }}
+              onClose={() => setCancelDialog(false)}
+            />
+          )}
+        </>
+      );
+
+      return (
+        <>
+          {device === 'mobile' ? (
+            <div className="min-h-screen flex justify-center pt-10 pb-32" style={{ background: '#f3f4f6' }}>
+              <div className="device-bezel">
+                <div className="device-screen mobile-mode">
+                  {appContent}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="min-h-screen bg-white pb-32">
+              {appContent}
+            </div>
+          )}
+
+          <ModeratorPanel
+            step={step}
+            subStep={subStep}
+            onJump={jumpTo}
+            onReset={reset}
+            taskMode={taskMode}
+            onToggleTask={() => setTaskMode(!taskMode)}
+            device={device}
+            onSetDevice={setDevice}
+          />
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

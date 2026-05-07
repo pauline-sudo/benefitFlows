@@ -1,0 +1,3362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>Payflip · Pension savings · Testable prototype</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-primary: #d44a74;
+      --color-primary-hover: #b83b62;
+      --color-strong: #0f0d28;
+      --color-text-prominent: #0f0d28;
+      --color-text-default: #50545e;
+      --color-text-muted: #8b8d96;
+      --color-text-inverted: #ffffff;
+      --color-surface: #f7f7f8;
+      --color-surface-hover: #eaeaeb;
+      --color-border-light: #eaeaeb;
+      --color-border-mid: #d4d6db;
+      --color-success-bg: #ebf9f1;
+      --color-success-text: #086343;
+      --color-warning-bg: #fff5e0;
+      --color-warning-text: #92520c;
+      --color-warning-border: #f4c77d;
+      --color-info-bg: #eef2ff;
+      --color-info-text: #1d3a8a;
+      --color-brand-bg: #fdf5f8;
+      --color-brand-bg-deep: #fbe7ee;
+      --color-brand-text: #b83b62;
+      --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+      --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    html, body {
+      font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #ffffff;
+      color: var(--color-text-prominent);
+      letter-spacing: -0.005em;
+    }
+    .ff-display { font-family: 'Studio Feixen Sans', 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .ff-poppins { font-family: 'Poppins', system-ui, sans-serif; }
+    .focus-ring:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    .link-underline { text-underline-offset: 3px; }
+    /* Custom scrollbar for modal */
+    .nice-scroll::-webkit-scrollbar { width: 8px; }
+    .nice-scroll::-webkit-scrollbar-thumb { background: #d4d6db; border-radius: 4px; }
+    /* Dialog backdrop fade */
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.96) translateY(4px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+    .anim-fade { animation: fadeIn 180ms ease-out both; }
+    .anim-scale { animation: scaleIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Page-level step transitions */
+    @keyframes pageEnterForward {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pageEnterBackward {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-page-forward { animation: pageEnterForward 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-page-back { animation: pageEnterBackward 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Stagger helpers for content blocks within a page */
+    .stagger > * { opacity: 0; animation: pageEnterForward 360ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .stagger > *:nth-child(1) { animation-delay: 60ms; }
+    .stagger > *:nth-child(2) { animation-delay: 120ms; }
+    .stagger > *:nth-child(3) { animation-delay: 180ms; }
+    .stagger > *:nth-child(4) { animation-delay: 240ms; }
+    .stagger > *:nth-child(5) { animation-delay: 300ms; }
+
+    /* Success checkmark pop + ring */
+    @keyframes successPop {
+      0% { opacity: 0; transform: scale(0.4); }
+      55% { transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes successRing {
+      0% { transform: scale(0.8); opacity: 0.55; }
+      100% { transform: scale(1.7); opacity: 0; }
+    }
+    @keyframes drawCheck {
+      0% { stroke-dashoffset: 30; opacity: 0; }
+      30% { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .anim-success-pop { animation: successPop 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-success-ring {
+      animation: successRing 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 220ms;
+    }
+    .anim-draw-check {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: drawCheck 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 280ms;
+    }
+
+    /* Reveal animations for inline UI changes */
+    @keyframes slideReveal {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-reveal { animation: slideReveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Stepper label crossfade — direction-aware to match page transition */
+    @keyframes labelSlideFwd {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes labelSlideBack {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .anim-label-slide-fwd { animation: labelSlideFwd 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .anim-label-slide-back { animation: labelSlideBack 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Button press */
+    button:active:not(:disabled) { transform: translateY(0.5px); }
+
+    /* =========================================================================
+       Mobile mode — activates when wrapper has .mobile-mode class
+       Mobile-first patterns from Figma: sticky bottom CTA, stacked at-a-glance,
+       no side panels (action surfaces move to sticky bottom).
+       ========================================================================= */
+    .mobile-mode .max-w-\[1248px\] { max-width: 100% !important; }
+    .mobile-mode .max-w-\[760px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[600px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[640px\]  { max-width: 100% !important; }
+    .mobile-mode .max-w-\[440px\]  { max-width: 100% !important; }
+    /* Tighter horizontal padding to match the 20px mobile design */
+    .mobile-mode .px-6 { padding-left: 20px !important; padding-right: 20px !important; }
+    .mobile-mode .px-8 { padding-left: 20px !important; padding-right: 20px !important; }
+    /* Zero inner-section padding only for intro/benefit-detail content sections (direct children of main).
+       Cards and other px-5 elements deeper in the tree keep their padding. */
+    .mobile-mode .flow-row > main > .px-5 {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    /* Hide desktop side panels — actions surface in sticky bottoms instead */
+    .mobile-mode aside {
+      display: none !important;
+    }
+    /* Stack flex layouts (just in case any aside slips through) */
+    .mobile-mode .flow-row {
+      flex-direction: column !important;
+      gap: 0 !important;
+    }
+    /* At-a-glance: 3-col grid → stacked rows with separators */
+    .mobile-mode .glance-grid {
+      grid-template-columns: 1fr !important;
+      gap: 0 !important;
+    }
+    .mobile-mode .glance-grid > button {
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 1px solid var(--color-border-light) !important;
+      padding: 16px 0 !important;
+    }
+    .mobile-mode .glance-grid > button:last-child {
+      border-bottom: none !important;
+    }
+    .mobile-mode .glance-grid > button > div:first-child {
+      flex: none !important;
+    }
+    .mobile-mode .glance-grid > button > div:last-child {
+      gap: 8px !important;
+    }
+    /* Mobile bottom action bar — pinned at bottom by flex layout */
+    .mobile-bottom-bar {
+      display: none;
+    }
+    .mobile-mode .mobile-bottom-bar {
+      display: block;
+      flex-shrink: 0;
+      background: white;
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--color-border-light);
+      box-shadow: 0 -4px 12px -2px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+    /* Hide desktop-only inline FlowActions on mobile (we render sticky bottom instead) */
+    .mobile-mode .flow-actions-desktop {
+      display: none !important;
+    }
+    /* Hide mobile-only blocks on desktop */
+    .mobile-only { display: none; }
+    .mobile-mode .mobile-only { display: block; }
+    .mobile-mode .desktop-only { display: none !important; }
+    /* Stack the "How it works" 2-col grid on mobile */
+    .mobile-mode .howto-grid { grid-template-columns: 1fr !important; }
+
+    /* Full-bleed progress bar on mobile — shell zeros its horizontal padding,
+       label gets its own 20px padding, bar fills container edge to edge */
+    .mobile-mode .stepper-shell {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    .mobile-mode .stepper-shell p {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+    .mobile-mode .stepper-bar,
+    .mobile-mode .stepper-fill {
+      border-radius: 0 !important;
+    }
+
+    /* =========================================================================
+       Bottom drawer modal — mobile mode anchors modals to the bottom of phone
+       ========================================================================= */
+    .mobile-mode .modal-overlay {
+      align-items: flex-end !important;
+      padding: 0 !important;
+    }
+    .mobile-mode .modal-card {
+      border-radius: 16px 16px 0 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: 85% !important;
+      margin: 0 !important;
+      animation: drawerUp 320ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    }
+    /* Subtle handle indicator at top of mobile drawers for affordance */
+    .mobile-mode .modal-card::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--color-border-mid);
+      margin: 8px auto 0;
+      flex-shrink: 0;
+    }
+    @keyframes drawerUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* Phone-frame chrome */
+    .device-bezel {
+      background: #1f2937;
+      padding: 8px;
+      border-radius: 36px;
+      box-shadow: 0 12px 40px rgba(15, 13, 40, 0.18), 0 2px 8px rgba(15, 13, 40, 0.08);
+    }
+    .device-screen {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      width: 390px;
+      height: calc(100vh - 80px);
+      /* transform creates a containing block for position:fixed children — keeps modals confined to phone frame */
+      transform: translateZ(0);
+      position: relative;
+    }
+    /* Mobile flex shell — header(s) at top, scroll area fills, bottom bar pinned */
+    .mobile-mode {
+      display: flex !important;
+      flex-direction: column;
+    }
+    .mobile-scroll-area {
+      flex: 1;
+      min-height: 0;
+    }
+    .mobile-mode .mobile-scroll-area {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Keyed page wrapper inside scroll area also fills (so screens can use min-height: 100%) */
+    .mobile-mode .mobile-scroll-area > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .anim-page-forward, .anim-page-back, .anim-fade, .anim-scale,
+      .anim-success-pop, .anim-success-ring, .anim-draw-check,
+      .anim-reveal, .anim-label-slide-fwd, .anim-label-slide-back, .stagger > * {
+        animation: none !important;
+      }
+      * { transition-duration: 0.01ms !important; }
+    }
+    /* File drop hover */
+    .drop-zone-active { border-color: var(--color-primary) !important; background: #fdf5f8 !important; }
+    /* Print clean (in case Pauline screenshots) */
+    @media print { .moderator-panel { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    /* =========================================================================
+       Icons (inline SVG — keep stroke 1.5 to match Lucide-ish feel)
+       ========================================================================= */
+    const Icon = ({ d, size = 16, stroke = 1.5, fill = 'none', viewBox = '0 0 24 24', className = '' }) => (
+      <svg
+        width={size} height={size} viewBox={viewBox} fill={fill} stroke="currentColor"
+        strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round"
+        className={className} aria-hidden="true"
+      >
+        {d}
+      </svg>
+    );
+    const ICONS = {
+      cloudUpload: <><path d="M12 13v8" /><path d="m8 17 4-4 4 4" /><path d="M20 16.2A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" /></>,
+      check: <path d="M20 6 9 17l-5-5" />,
+      checkCircle: <><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></>,
+      x: <><path d="M18 6 6 18" /><path d="m6 6 12 12" /></>,
+      arrowLeft: <><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></>,
+      arrowRight: <><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>,
+      info: <><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>,
+      alert: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></>,
+      file: <><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" /><path d="M14 2v6h6" /></>,
+      trendingUp: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></>,
+      pencil: <><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" /></>,
+      chevron: <path d="m6 9 6 6 6-6" />,
+      book: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>,
+      sparkle: <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />,
+      lock: <><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>,
+    };
+
+    /* =========================================================================
+       Top-level constants
+       ========================================================================= */
+    const CEILING = 1350;
+    const TAX_ADVANTAGE_RATE = 0.30; // ~30% net advantage
+    const EMPLOYER_COST = 0.0886;
+    // Net on payslip multiplier — derived from the calc modal: cashOutRate (0.362) + advantageRate (0.16) = 0.522
+    // Single source of truth so every surface ("Est. net on payslip", success/benefit screens, intro CTA, glance card) reconciles.
+    const NET_PAYSLIP_RATE = 0.522;
+    const netOnPayslip = (amount) => Math.round(amount * NET_PAYSLIP_RATE);
+    const STEPS = ['intro', 'upload', 'verify', 'budget', 'review', 'success'];
+    const STEPPER_LABELS = ['Upload', 'Verify amount', 'Choose budget'];
+    const STEPPER_TOTAL = 3;
+
+    /* =========================================================================
+       Reusable primitives
+       ========================================================================= */
+    const Button = ({ variant = 'primary', size = 'md', children, disabled, onClick, className = '', leftIcon, rightIcon, type = 'button' }) => {
+      const base = 'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold transition focus-ring whitespace-nowrap';
+      const sizes = {
+        sm: 'h-9 px-3 text-sm',
+        md: 'h-10 px-4 text-[15px]',
+        lg: 'h-11 px-5 text-base',
+      };
+      const variants = {
+        primary: 'text-white shadow-sm',
+        secondary: 'bg-white border border-[var(--color-border-mid)] text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        ghost: 'bg-transparent text-[var(--color-text-prominent)] hover:bg-[var(--color-surface)]',
+        link: 'h-auto p-0 underline text-[var(--color-text-prominent)] hover:opacity-70',
+      };
+      const style = variant === 'primary'
+        ? { background: disabled ? '#e5b6c5' : 'var(--color-primary)' }
+        : {};
+      return (
+        <button
+          type={type}
+          onClick={onClick}
+          disabled={disabled}
+          className={`${base} ${variants[variant]} ${variant === 'link' ? '' : sizes[size]} ${disabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'} ${className}`}
+          style={style}
+        >
+          {leftIcon}
+          {children}
+          {rightIcon}
+        </button>
+      );
+    };
+
+    const Pill = ({ children, tone = 'neutral' }) => {
+      const tones = {
+        neutral: 'bg-[var(--color-surface)] text-[var(--color-text-prominent)]',
+        success: 'bg-[var(--color-success-bg)] text-[var(--color-success-text)]',
+        warning: 'bg-[var(--color-warning-bg)] text-[var(--color-warning-text)]',
+        brand: 'bg-[var(--color-brand-bg)] text-[var(--color-brand-text)]',
+      };
+      return (
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ${tones[tone]}`}>
+          {children}
+        </span>
+      );
+    };
+
+    /* Mobile bottom action bar — pinned at bottom by flex layout */
+    const MobileBottomBar = ({ children }) => (
+      <div className="mobile-bottom-bar">{children}</div>
+    );
+
+    /* Lightweight 2-column bottom: info on left, action button on right.
+       Pattern from the Figma "Sticky bottom" component. */
+    const BottomBarSplit = ({ infoTop, infoMain, infoSub, helper, action }) => (
+      <div className="flex items-center gap-6">
+        <div className="flex-1 flex flex-col justify-center min-h-[48px] gap-0.5 min-w-0">
+          {infoTop && (
+            <div className="text-[11px] font-medium text-[var(--color-text-default)] tracking-[0.04em] uppercase">
+              {infoTop}
+            </div>
+          )}
+          {infoMain && (
+            <div className="ff-display font-semibold text-xl leading-7 tracking-tight text-[var(--color-text-prominent)]">
+              {infoMain}
+            </div>
+          )}
+          {infoSub && (
+            <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">
+              {infoSub}
+            </div>
+          )}
+          {helper && !infoTop && !infoMain && (
+            <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">
+              {helper}
+            </div>
+          )}
+        </div>
+        <div className="flex-1">{action}</div>
+      </div>
+    );
+
+    /* Stacked bottom: helper text (full width), checkbox, full-width button.
+       Pattern from the Figma Review screen. */
+    const BottomBarStacked = ({ helper, checkbox, action }) => (
+      <div className="flex flex-col gap-3">
+        {helper && (
+          <div className="text-xs font-medium text-[var(--color-text-default)] leading-4">
+            {helper}
+          </div>
+        )}
+        {checkbox}
+        {action}
+      </div>
+    );
+
+    /* Inline details panel — explains budget impact + advantage, shown when user
+       expands the toggle from the bottom bar. Compact enough to live above the action row. */
+    const BottomBarDetailsPanel = ({ amount }) => {
+      const fmt = (n) => n.toLocaleString('en-BE');
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const advantage = Math.round(amount * 0.16);
+      return (
+        <div
+          className="rounded-lg p-3 flex flex-col gap-3 text-sm anim-reveal"
+          style={{ background: 'var(--color-surface)' }}
+        >
+          {/* Why is the budget impact higher? */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-[var(--color-text-prominent)]">
+                Why €{fmt(totalImpact)}?
+              </span>
+              <span className="text-sm font-semibold tabular-nums text-[var(--color-text-prominent)]">
+                €{fmt(totalImpact)}
+              </span>
+            </div>
+            <div className="flex flex-col gap-0.5 text-xs text-[var(--color-text-default)]">
+              <div className="flex justify-between">
+                <span>Your contribution</span>
+                <span className="tabular-nums">€{fmt(amount)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Employer cost (8.86%)</span>
+                <span className="tabular-nums">+€{fmt(employerCost)}</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ height: 1, background: 'var(--color-border-mid)' }} />
+          {/* Advantage explanation */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold flex items-center gap-1.5" style={{ color: 'var(--color-brand-text)' }}>
+                <Icon d={ICONS.trendingUp} size={14} />
+                Net advantage
+              </span>
+              <span className="text-sm font-semibold tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+                +€{fmt(advantage)}
+              </span>
+            </div>
+            <p className="text-xs text-[var(--color-text-default)] leading-4">
+              Pension savings is exempt from NSSO and earns a 30% tax credit, keeping you €{fmt(advantage)} more vs cash.
+            </p>
+          </div>
+        </div>
+      );
+    };
+
+    /* Chevron toggle button — used inside the bottom bar to open/close the details panel.
+       Closed: chevron up (panel will open upward). Open: chevron down (panel will collapse downward). */
+    const DetailsToggle = ({ open, onToggle }) => (
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-1 text-xs font-medium hover:opacity-70 transition"
+        style={{ color: 'var(--color-text-default)' }}
+      >
+        {open ? 'Hide details' : 'Why this amount?'}
+        <Icon
+          d={ICONS.chevron}
+          size={14}
+          style={{
+            transform: open ? 'rotate(0deg)' : 'rotate(180deg)',
+            transition: 'transform 200ms',
+          }}
+        />
+      </button>
+    );
+
+    /* Mobile breakdown row — used on Review and BenefitDetail to surface key numbers
+       inline (since there's no side panel). Pattern matches the Figma mobile design:
+       icon + label + "How is this calculated?" link, value on the right. */
+    const MobileBreakdownRow = ({ icon, label, value, calcLink, calcView, onOpenCalc, brand }) => (
+      <div
+        className="rounded-xl px-3 py-3 flex items-center justify-between gap-3"
+        style={{
+          background: brand ? 'var(--color-brand-bg)' : 'var(--color-surface)',
+          border: brand ? '1px solid var(--color-brand-bg-deep)' : '1px solid var(--color-border-light)',
+        }}
+      >
+        <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Icon
+              d={icon}
+              size={16}
+              style={{ color: brand ? 'var(--color-brand-text)' : 'var(--color-text-prominent)' }}
+            />
+            <span
+              className="text-sm font-semibold"
+              style={{ color: brand ? 'var(--color-brand-text)' : 'var(--color-text-prominent)' }}
+            >
+              {label}
+            </span>
+          </div>
+          {calcLink && (
+            <button
+              onClick={() => onOpenCalc(calcView)}
+              className="text-xs underline self-start hover:opacity-70"
+              style={{ color: 'var(--color-text-default)' }}
+            >
+              How is this calculated?
+            </button>
+          )}
+        </div>
+        <div
+          className="text-base font-medium tabular-nums shrink-0"
+          style={{ color: brand ? 'var(--color-brand-text)' : 'var(--color-text-prominent)' }}
+        >
+          {value}
+        </div>
+      </div>
+    );
+
+    /* Collapsible details card — used on mobile review to surface
+       budget-impact breakdown + advantage explanation without taking
+       permanent screen real estate. */
+    const MobileDetailsCard = ({ amount }) => {
+      const [open, setOpen] = useState(false);
+      const fmt = (n) => n.toLocaleString('en-BE');
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const advantage = Math.round(amount * 0.16);
+
+      return (
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+        >
+          <button
+            onClick={() => setOpen(!open)}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--color-surface)] transition"
+          >
+            <span className="text-sm font-semibold text-[var(--color-text-prominent)]">Details</span>
+            <Icon
+              d={ICONS.chevron}
+              size={16}
+              className="transition-transform"
+              style={{
+                color: 'var(--color-text-default)',
+                transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+              }}
+            />
+          </button>
+          {open && (
+            <div className="anim-reveal px-4 pb-4 flex flex-col gap-4" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 16 }}>
+              {/* Section 1: Budget impact breakdown */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm font-semibold text-[var(--color-text-prominent)]">Budget impact</span>
+                  <span className="text-base font-semibold tabular-nums text-[var(--color-text-prominent)]">€{fmt(totalImpact)}</span>
+                </div>
+                <p className="text-xs text-[var(--color-text-default)] leading-4">
+                  Why is this higher than the €{fmt(amount)} you chose? Payflip also covers the employer's social-security contribution on top of your contribution. Both come out of your selected budgets.
+                </p>
+                <div
+                  className="flex flex-col gap-1 text-xs rounded-lg p-2.5 mt-1"
+                  style={{ background: 'var(--color-surface)' }}
+                >
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[var(--color-text-default)]">Your contribution</span>
+                    <span className="tabular-nums font-medium">€{fmt(amount)}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[var(--color-text-default)]">Employer cost (8.86%)</span>
+                    <span className="tabular-nums font-medium">+ €{fmt(employerCost)}</span>
+                  </div>
+                  <div style={{ height: 1, background: 'var(--color-border-mid)' }} className="my-1" />
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-semibold text-[var(--color-text-prominent)]">Total impact</span>
+                    <span className="tabular-nums font-semibold text-[var(--color-text-prominent)]">€{fmt(totalImpact)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+              {/* Section 2: Net advantage explanation */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm font-semibold flex items-center gap-1.5" style={{ color: 'var(--color-brand-text)' }}>
+                    <Icon d={ICONS.trendingUp} size={14} />
+                    Your Payflip advantage
+                  </span>
+                  <span className="text-base font-semibold tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+                    +€{fmt(advantage)}
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--color-text-default)] leading-4">
+                  This is the extra you keep by routing through Payflip instead of taking the same amount as a cash bonus. Pension savings is exempt from NSSO contributions and earns a 30% personal income tax credit.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const Stepper = ({ current }) => {
+      const prevRef = useRef(current);
+      const direction = current >= prevRef.current ? 'forward' : 'back';
+      useEffect(() => { prevRef.current = current; }, [current]);
+
+      const stepNumber = current + 1;
+      const label = STEPPER_LABELS[current];
+      const pct = (current / STEPPER_TOTAL) * 100;
+      const pearlLeft = pct === 0 ? '0px' : `calc(${pct}% - 4px)`;
+      const fillTransition = `width 320ms cubic-bezier(0.16, 1, 0.3, 1)`;
+      const pearlTransition = `left 320ms cubic-bezier(0.16, 1, 0.3, 1)`;
+
+      return (
+        <div className="w-full flex flex-col gap-3 py-4">
+          <p
+            key={stepNumber}
+            className={`text-xs font-semibold tracking-wide text-[var(--color-text-prominent)] ${direction === 'forward' ? 'anim-label-slide-fwd' : 'anim-label-slide-back'}`}
+          >
+            Step {stepNumber} of {STEPPER_TOTAL} · {label}
+          </p>
+          <div className="stepper-bar relative h-1 w-full rounded-full" style={{ background: '#eaeaeb' }}>
+            {/* Filled track */}
+            <div
+              className="stepper-fill absolute left-0 top-0 h-full rounded-full"
+              style={{
+                width: `${pct}%`,
+                background: '#220a35',
+                transition: fillTransition,
+              }}
+            />
+            {/* Traveling pearl at the leading edge */}
+            <div
+              className="absolute top-1/2 w-2 h-2 rounded-full -translate-y-1/2"
+              style={{
+                left: pearlLeft,
+                background: '#220a35',
+                transition: pearlTransition,
+                boxShadow: '0 0 0 4px rgba(34, 10, 53, 0.1)',
+              }}
+            />
+          </div>
+        </div>
+      );
+    };
+
+    const TopNav = ({ active = 'Benefits' }) => (
+      <header
+        className="desktop-only h-[60px] flex items-center justify-between px-8 sticky top-0 z-30 bg-white"
+        style={{ borderBottom: '1px solid var(--color-border-light)' }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2 ff-display">
+          <div className="w-8 h-7 relative">
+            <svg viewBox="0 0 33 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <path d="M0 0 H10 V17 H0 Z M13 0 H22 V8 H13 Z M13 9 H22 V17 H13 Z M25 0 H33 V17 H25 Z" fill="#0f0d28" />
+            </svg>
+          </div>
+          <span className="font-bold text-[22px] tracking-tight">Payflip</span>
+        </div>
+        {/* Nav */}
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+          {['Home', 'Benefits', 'Salary', 'Budget'].map((item) => (
+            <button
+              key={item}
+              className={`text-sm font-medium py-1.5 transition ${item === active ? 'text-[var(--color-text-prominent)] border-b-2 border-black' : 'text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)]'}`}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
+        {/* Avatar */}
+        <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm" style={{ background: 'var(--color-surface-hover)' }}>
+          PT
+        </div>
+      </header>
+    );
+
+    /* Mobile FlowHeader — back button only, no top nav (bottom nav is hidden in this flow) */
+    const MobileFlowHeader = ({ onBack }) => (
+      <header
+        className="mobile-only sticky top-0 z-30 bg-white"
+        style={{ borderBottom: '1px solid var(--color-border-light)' }}
+      >
+        <div className="flex items-center gap-3 p-5">
+          {onBack ? (
+            <button
+              onClick={onBack}
+              aria-label="Back"
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:opacity-80 transition"
+              style={{ background: 'var(--color-surface)' }}
+            >
+              <Icon d={ICONS.arrowLeft} size={18} />
+            </button>
+          ) : (
+            <div className="w-9 h-9" />
+          )}
+        </div>
+      </header>
+    );
+
+    const Checkbox = ({ checked, onChange, children, id }) => (
+      <label htmlFor={id} className="flex items-start gap-3 cursor-pointer select-none">
+        <button
+          id={id}
+          type="button"
+          onClick={() => onChange(!checked)}
+          className="w-5 h-5 rounded shrink-0 flex items-center justify-center transition mt-0.5 focus-ring"
+          role="checkbox"
+          aria-checked={checked}
+          style={{
+            border: `1.5px solid ${checked ? 'var(--color-primary)' : 'var(--color-border-mid)'}`,
+            background: checked ? 'var(--color-primary)' : 'white',
+          }}
+        >
+          {checked && <Icon d={ICONS.check} size={12} stroke={3} className="text-white" />}
+        </button>
+        <span className="text-sm leading-6 text-[var(--color-text-prominent)]">{children}</span>
+      </label>
+    );
+
+    /* =========================================================================
+       Review-specific value card — submit happens here (not in a confirm modal)
+       ========================================================================= */
+    /* Pink advantage hero card — Payflip's USP. Used in desktop side panel value card AND on mobile review. */
+    const AdvantageHero = ({ amount, onOpenCalc }) => {
+      const fmt = (n) => n.toLocaleString('nl-BE');
+      const taxAdvantage = Math.round(amount * 0.16);
+      return (
+        <div
+          className="rounded-xl p-4 flex flex-col gap-2"
+          style={{
+            background: 'white',
+            border: '1px solid var(--color-border-light)',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <div className="flex items-center gap-1.5">
+            <Icon d={ICONS.trendingUp} size={14} style={{ color: 'var(--color-brand-text)' }} />
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.08em]"
+              style={{ color: 'var(--color-brand-text)' }}
+            >
+              Your Payflip advantage
+            </span>
+          </div>
+          <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)]">
+            €{fmt(taxAdvantage)}
+          </div>
+          <div className="text-xs text-[var(--color-text-default)] leading-4">
+            more in your pocket vs. taking this as a cash bonus
+          </div>
+          <button
+            onClick={() => onOpenCalc('advantage')}
+            className="self-start inline-flex items-center gap-1.5 mt-1.5 text-sm font-semibold transition hover:gap-2"
+            style={{ color: 'var(--color-brand-text)' }}
+          >
+            See full calculation
+            <Icon d={ICONS.arrowRight} size={14} />
+          </button>
+        </div>
+      );
+    };
+
+    /* Smaller chip variant — used on Review where the dominant message is "this is what you're paying / submit". */
+    const AdvantageChip = ({ amount, onOpenCalc }) => {
+      const fmt = (n) => n.toLocaleString('nl-BE');
+      const taxAdvantage = Math.round(amount * 0.16);
+      return (
+        <div
+          className="rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"
+          style={{
+            background: 'var(--color-brand-bg)',
+            border: '1px solid var(--color-brand-bg-deep)',
+          }}
+        >
+          <div className="flex items-center gap-2 min-w-0" style={{ color: 'var(--color-brand-text)' }}>
+            <Icon d={ICONS.trendingUp} size={14} className="shrink-0" />
+            <span className="text-sm font-semibold truncate">+€{fmt(taxAdvantage)} net advantage</span>
+          </div>
+          <button
+            onClick={() => onOpenCalc('advantage')}
+            className="text-xs font-medium underline shrink-0 hover:opacity-70"
+            style={{ color: 'var(--color-brand-text)' }}
+          >
+            How is this calculated?
+          </button>
+        </div>
+      );
+    };
+
+    const ReviewValueCard = ({ amount, file, primarySource, secondarySource, tcsAccepted, onTcsToggle, onSubmit, onOpenCalc, error, onClearError }) => {
+      // Belgian-style number formatting (dot for thousands)
+      const fmt = (n) => n.toLocaleString('nl-BE');
+      const estNet = netOnPayslip(amount);
+      const taxAdvantage = Math.round(amount * 0.16);
+
+      return (
+        <aside className="w-[416px] shrink-0">
+          <div
+            className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+            style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+          >
+            {/* Value hero — what they'll see on their payslip. The form below already shows
+                the inputs (document, amount, budget); this side is reserved for outcomes. */}
+            <div>
+              <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                Est. net on payslip
+              </div>
+              <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)]">
+                ~€{fmt(estNet)}
+              </div>
+              <button
+                onClick={() => onOpenCalc('reimbursement')}
+                className="text-xs underline link-underline mt-2 ff-poppins text-[var(--color-text-default)] hover:opacity-70 self-start"
+              >
+                How is this calculated?
+              </button>
+            </div>
+
+            {/* Tax advantage — small chip */}
+            <AdvantageChip amount={amount} onOpenCalc={onOpenCalc} />
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+            {/* Terms checkbox + inline error if user tries to submit without accepting */}
+            <div className="flex flex-col gap-2">
+              <Checkbox checked={tcsAccepted} onChange={(v) => { onTcsToggle(v); if (v && onClearError) onClearError(); }} id="tcs-accept">
+                I accept the{' '}
+                <button
+                  type="button"
+                  onClick={(e) => e.stopPropagation()}
+                  className="underline font-medium hover:opacity-70"
+                >
+                  Terms and Conditions
+                </button>
+              </Checkbox>
+              {error && (
+                <div
+                  className="flex items-start gap-1.5 text-xs anim-reveal"
+                  style={{ color: 'var(--color-warning-text)' }}
+                >
+                  <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" />
+                  <span>Please accept the terms and conditions to continue.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Submit — always enabled; shows error on click if T&C not accepted */}
+            <Button
+              variant="primary"
+              className="w-full"
+              onClick={onSubmit}
+            >
+              Submit choice
+            </Button>
+          </div>
+        </aside>
+      );
+    };
+
+    /* =========================================================================
+       Side summary (right panel that sits next to all flow screens)
+       ========================================================================= */
+    const SideSummary = ({ step, amount, primarySource, secondarySource, primaryUsed, secondaryUsed, onOpenCalc }) => {
+      // Different content per step
+      if (step === 'intro') {
+        return <SideSummaryIntroWithAction onStart={() => {}} />;
+      }
+      // Computed values
+      const employerCost = amount > 0 ? Math.round(amount * EMPLOYER_COST) : 0;
+      const totalImpact = amount + employerCost;
+      const advantage = amount > 0 ? Math.round(amount * 0.16) : 0;
+      const fmt = (n) => n.toLocaleString('en-BE');
+      // Compute used amounts from the same model the budget screen uses
+      const POTS = { bonus: 700, eoy: 1450 };
+      const primaryRem = primarySource ? POTS[primarySource] : 0;
+      const computedPrimaryUsed = primarySource ? Math.min(totalImpact, primaryRem) : 0;
+      const computedSecondaryUsed = totalImpact - computedPrimaryUsed;
+
+      // Budget step gets the hero treatment — Pay from budgets + always-visible inline breakdown
+      if (step === 'budget') {
+        return (
+          <aside className="w-[416px] shrink-0">
+            <div
+              className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+            >
+              {/* Hero: Pay from budgets */}
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide">
+                  Pay from budgets
+                </div>
+                <div className="ff-display font-bold text-[32px] leading-none tracking-tight text-[var(--color-text-prominent)] mt-1">
+                  €{fmt(totalImpact)}
+                </div>
+              </div>
+
+              {/* Inline breakdown — always visible (we have the real estate on desktop) */}
+              <div className="flex flex-col gap-1.5 text-sm">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[var(--color-text-default)]">Your contribution</span>
+                  <span className="tabular-nums text-[var(--color-text-prominent)]">€{fmt(amount)}</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[var(--color-text-default)]">Employer cost (8.86%)</span>
+                  <span className="tabular-nums text-[var(--color-text-prominent)]">+ €{fmt(employerCost)}</span>
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+              {/* Allocation rows */}
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">
+                  Funded from
+                </div>
+                <Row label="Bonus" value={
+                  primarySource === 'bonus' ? `€${fmt(computedPrimaryUsed)}`
+                  : secondarySource === 'bonus' ? `€${fmt(computedSecondaryUsed)}`
+                  : '—'
+                } />
+                <Row label="End of year premium" value={
+                  primarySource === 'eoy' ? `€${fmt(computedPrimaryUsed)}`
+                  : secondarySource === 'eoy' ? `€${fmt(computedSecondaryUsed)}`
+                  : '—'
+                } />
+              </div>
+
+              {/* Small advantage chip — present but subordinate */}
+              <div
+                className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg"
+                style={{
+                  background: 'var(--color-brand-bg)',
+                  border: '1px solid var(--color-brand-bg-deep)',
+                  color: 'var(--color-brand-text)',
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon d={ICONS.trendingUp} size={14} />
+                  <span className="text-xs font-semibold">+ €{fmt(advantage)} net advantage</span>
+                </div>
+                <button
+                  onClick={() => onOpenCalc && onOpenCalc('advantage')}
+                  className="text-xs font-medium underline shrink-0 hover:opacity-70"
+                >
+                  How?
+                </button>
+              </div>
+            </div>
+          </aside>
+        );
+      }
+
+      // Verify step (and any other flow step that's not budget): lead with advantage
+      // (mirrors the mobile bottom bar's "+€168 net advantage" treatment)
+      return (
+        <aside className="w-[416px] shrink-0">
+          <div
+            className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+            style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+          >
+            {amount > 0 ? (
+              /* Hero: estimated net advantage */
+              <AdvantageHero amount={amount} onOpenCalc={onOpenCalc || (() => {})} />
+            ) : (
+              /* Empty state — Upload before file drop */
+              <div
+                className="rounded-xl p-4 flex flex-col gap-1.5"
+                style={{ background: 'var(--color-surface)' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Icon d={ICONS.trendingUp} size={14} style={{ color: 'var(--color-text-muted)' }} />
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: 'var(--color-text-muted)' }}>
+                    Estimated net advantage
+                  </span>
+                </div>
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight" style={{ color: 'var(--color-text-muted)' }}>
+                  €—
+                </div>
+                <div className="text-xs text-[var(--color-text-default)] leading-4">
+                  Upload your fiscal attest to see your estimated advantage.
+                </div>
+              </div>
+            )}
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+            {/* Subordinate context rows */}
+            <div className="flex flex-col gap-2.5 text-sm">
+              <Row label="Document" value={amount > 0 ? '281.60_attest.pdf' : '—'} />
+              <Row label="Amount you choose" value={amount > 0 ? `€${fmt(amount)}` : '—'} />
+              <Row label="Est. net on payslip" value={amount > 0 ? `~€${fmt(netOnPayslip(amount))}` : '—'} bold />
+              {amount > 0 && (
+                <>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[13px] text-[var(--color-text-default)]">Budget impact</span>
+                    <span className="text-[13px] tabular-nums text-[var(--color-text-prominent)]">
+                      ~€{fmt(amount + Math.round(amount * EMPLOYER_COST))}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-[var(--color-text-muted)] -mt-1.5 leading-4">
+                    incl. 8.86% employer contribution (from your gross budget, not extra out of pocket)
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </aside>
+      );
+    };
+
+    const Row = ({ label, value, bold }) => (
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[var(--color-text-default)] text-[13px]">{label}</span>
+        <span className={`text-[13px] tabular-nums ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-prominent)]'}`}>{value}</span>
+      </div>
+    );
+
+    const sourceLabel = (id) => ({
+      bonus: 'Bonus',
+      eoy: 'End of year premium',
+    })[id] || id;
+
+    /* =========================================================================
+       FAQ accordion — intro page, covers the three main questions testers raised
+       ========================================================================= */
+    const FAQ_ITEMS = [
+      {
+        q: "I don't have pension savings yet. How do I start?",
+        a: "Pension savings is a personal investment you set up directly with your bank or insurer (e.g. KBC, BNP Paribas Fortis, AG Insurance). You contribute up to €1,350/year. Once you've done that for at least one tax year, you'll receive a fiscal attest 281.60 and can claim this benefit here.",
+        link: { label: 'How to start pension savings', href: 'https://help.payflip.be/en/articles/280489-individual-pension-saving-all-you-need-to-know' },
+      },
+      {
+        q: "What about the 30% tax reduction from the government?",
+        a: "The Belgian government gives you a 30% personal income tax reduction on your contribution, which happens when you file your tax return, completely separately from Payflip. This benefit stacks on top of it: by routing your reimbursement through Payflip, you also avoid NSSO social security charges on your bonus or end-of-year premium, which is where the extra advantage comes from.",
+      },
+      {
+        q: "Can I claim this more than once a year?",
+        a: "No, once per tax year. Your bank or insurer issues the fiscal attest 281.60 once a year (usually in April). As soon as you have it, you can submit here.",
+      },
+    ];
+
+    const FaqAccordion = () => {
+      const [openIndex, setOpenIndex] = useState(null);
+      return (
+        <div className="flex flex-col">
+          {FAQ_ITEMS.map((item, i) => (
+            <div key={i} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--color-border-light)' }}>
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between gap-3 py-3.5 text-left hover:opacity-70 transition"
+              >
+                <span className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{item.q}</span>
+                <Icon
+                  d={ICONS.chevron}
+                  size={16}
+                  className="shrink-0 transition-transform"
+                  style={{
+                    color: 'var(--color-text-muted)',
+                    transform: openIndex === i ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </button>
+              {openIndex === i && (
+                <div className="pb-4 anim-reveal">
+                  <p className="text-sm text-[var(--color-text-default)] leading-5">{item.a}</p>
+                  {item.link && (
+                    <a
+                      href={item.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-2 text-xs font-semibold underline hover:opacity-70 transition"
+                      style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}
+                    >
+                      {item.link.label}
+                      <Icon d={ICONS.arrowRight} size={12} />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          <div
+            className="flex items-center justify-between gap-3 pt-4 mt-2"
+            style={{ borderTop: '1px solid var(--color-border-light)' }}
+          >
+            <span className="text-xs text-[var(--color-text-muted)]">Still have questions?</span>
+            <a
+              href="https://help.payflip.be/en/articles/280489-individual-pension-saving-all-you-need-to-know"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold underline hover:opacity-70 transition"
+              style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}
+            >
+              Visit our Help Centre →
+            </a>
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Tax score explanation modal
+       ========================================================================= */
+    const TaxScoreModal = ({ onClose }) => {
+      const LEVELS = [
+        { score: 1, label: 'Neutral', color: '#8b8d96', desc: 'No meaningful tax advantage over a cash payout.' },
+        { score: 2, label: 'Good', color: '#2d7dd2', desc: 'NSSO-exempt, only withholding tax applies. You keep ~52% vs ~36% as cash.' },
+        { score: 3, label: 'Very good', color: '#1a9e5c', desc: 'Fully exempt from NSSO and withholding tax, giving near-gross payout.' },
+        { score: 4, label: 'Excellent', color: '#b83b62', desc: 'Maximum tax efficiency, e.g. warrants or meal vouchers. Close to 100% net retention.' },
+      ];
+      const current = 2;
+      return (
+        <Modal onClose={onClose} maxWidth={440}>
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight text-[var(--color-text-prominent)]">Tax score explained</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Every benefit has a tax score from Neutral to Excellent, based on how much of your gross budget you actually keep net.
+          </p>
+          <div className="flex flex-col gap-2 mb-5">
+            {LEVELS.map((l) => (
+              <div
+                key={l.score}
+                className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition"
+                style={{
+                  background: l.score === current ? 'var(--color-info-bg)' : 'var(--color-surface)',
+                  border: l.score === current ? '1.5px solid #c9d4f7' : '1px solid transparent',
+                }}
+              >
+                {/* Mini bar */}
+                <div className="flex items-end gap-[2px] shrink-0 mt-0.5">
+                  {[1,2,3,4].map((lvl) => (
+                    <div key={lvl} className="w-[6px] rounded-sm" style={{ height: 5 + lvl * 3, background: lvl <= l.score ? l.color : 'var(--color-border-mid)' }} />
+                  ))}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold" style={{ color: l.color }}>{l.label}</span>
+                    {l.score === current && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: '#dbeafe', color: '#1d3a8a' }}>This benefit</span>}
+                  </div>
+                  <p className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{l.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="rounded-lg p-3 flex gap-2 items-start text-xs leading-4"
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text-default)' }}
+          >
+            <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" />
+            <span>Pension savings scores <strong>Good</strong> because it's exempt from NSSO social security charges, but withholding tax still applies. Benefits like warrants or meal vouchers score higher because they're exempt from both.</span>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* =========================================================================
+       Tier indicator — shown on Verify, reacts live to amount input
+       ========================================================================= */
+    const TIER_LOW = 1050;   // 30% tax credit tier ceiling
+    const TIER_HIGH = 1350;  // 25% tax credit tier ceiling (= CEILING)
+
+    const TierIndicator = ({ amount }) => {
+      const inLow  = amount > 0 && amount <= TIER_LOW;
+      const inHigh = amount > TIER_LOW && amount <= TIER_HIGH;
+      const isOptimal = amount === TIER_LOW;
+      const isMax     = amount === TIER_HIGH;
+
+      if (amount <= 0) return null;
+
+      const color = inLow ? '#086343' : 'var(--color-brand-text)';
+
+      return (
+        <div className="mt-3 anim-reveal" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+            <span className="text-xs font-semibold" style={{ color }}>
+              {inLow ? '30%' : '25%'} government tax credit tier
+            </span>
+            {isOptimal && (
+              <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full inline-flex items-center gap-1" style={{ background: '#086343', color: 'white' }}>
+                <Icon d={ICONS.check} size={9} stroke={3} />
+                Optimal
+              </span>
+            )}
+            {isMax && (
+              <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full inline-flex items-center gap-1" style={{ background: 'var(--color-primary)', color: 'white' }}>
+                <Icon d={ICONS.check} size={9} stroke={3} />
+                Max
+              </span>
+            )}
+          </div>
+          {inHigh && !isMax && (
+            <p className="text-xs text-[var(--color-text-default)] leading-4 mt-1.5 ml-4">
+              <span className="font-medium">Tip:</span> The 30% tier (≤€{TIER_LOW.toLocaleString('en-BE')}) gives a higher return per euro.
+            </p>
+          )}
+          {isOptimal && (
+            <p className="text-xs leading-4 mt-1.5 ml-4" style={{ color: '#086343' }}>
+              The optimal rate — highest government tax credit per euro invested.
+            </p>
+          )}
+        </div>
+      );
+    };
+
+    /* Budget pill with hover state — shows available amount on hover */
+    const BudgetPillWithAmount = ({ label, available }) => {
+      const [hovered, setHovered] = useState(false);
+      return (
+        <div
+          className="relative inline-flex"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-default"
+            style={{
+              background: hovered ? 'var(--color-surface-hover)' : 'var(--color-surface)',
+              color: 'var(--color-text-prominent)',
+            }}
+          >
+            {label}
+            {hovered && (
+              <span
+                className="tabular-nums font-semibold anim-reveal"
+                style={{ color: 'var(--color-brand-text)' }}
+              >
+                · {available}
+              </span>
+            )}
+          </span>
+        </div>
+      );
+    };
+
+    /* Mobile-only tax score block for intro (side panel hidden on mobile) */
+    const MobileIntroTaxScore = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="mobile-only px-5 mb-6">
+          <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+          <div
+            className="rounded-xl px-4 py-4"
+            style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+          >
+            <TaxScore score={2} onClick={() => setOpen(true)} />
+          </div>
+          {open && <TaxScoreModal onClose={() => setOpen(false)} />}
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Screen 1 — Intro (Pension savings landing)
+       ========================================================================= */
+    const IntroScreen = ({ onStart, onOpenCalc }) => (
+      <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+        <main className="flex-1 max-w-[760px]">
+
+          {/* BenefitHeader */}
+          <div className="flex flex-col gap-4 px-5 pt-4 pb-6 relative">
+            <div
+              className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(212, 74, 116, 0.10) 0%, rgba(212, 74, 116, 0) 70%)',
+                filter: 'blur(20px)',
+              }}
+              aria-hidden
+            />
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight relative">Pension savings</h1>
+            <div className="flex items-center gap-2 -mt-2 relative">
+              <span className="text-sm font-medium text-[var(--color-text-default)]">Reimbursement</span>
+              <span className="text-[var(--color-text-muted)] text-sm">·</span>
+              <span className="text-sm font-medium text-[var(--color-text-muted)]">Once a year</span>
+            </div>
+            <p className="text-sm leading-5 text-[var(--color-text-default)] max-w-[640px] relative">
+              If you contributed to a pension savings plan last year through your bank or insurer, you can reclaim part of it here — more efficiently than any cash payout.
+            </p>
+          </div>
+
+          {/* BudgetPills with hover amounts */}
+          <div className="px-5 flex flex-wrap gap-2 mb-6">
+            <BudgetPillWithAmount label="End of year premium" available="€1,450" />
+            <BudgetPillWithAmount label="Bonus" available="€700" />
+          </div>
+
+          {/* Value section */}
+          <div className="px-5 desktop-only">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            <BenefitValueCard onOpenCalc={onOpenCalc} />
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+          </div>
+
+          {/* Mobile-only: Tax score in lieu of the advantage card (side panel hidden on mobile) */}
+          <MobileIntroTaxScore />
+
+          {/* How it works */}
+          <div className="px-5 pt-2 pb-6">
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-6 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+              How it works
+            </h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-6 howto-grid">
+              <Step n={1} title="Last year, you invested with your bank or insurer" body="You contributed up to €1,350 to your pension savings through your bank or insurer." />
+              <Step n={2} title="Upload your 281.60 fiscal attest" body="Drop in the fiscal attest 281.60 from your insurer. We'll validate the amount automatically." />
+              <Step n={3} title="Get reimbursed via your next payslip" body="The net amount lands on your next payslip." />
+            </div>
+          </div>
+
+          {/* FAQs */}
+          <div className="px-5 pb-8">
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-6" />
+            <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+              <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+              FAQs
+            </h2>
+            <FaqAccordion />
+          </div>
+        </main>
+
+        <SideSummaryIntroWithAction onStart={onStart} />
+      </div>
+    );
+
+    /* 4-segment bar rating: neutral(1) → good(2) → very good(3) → excellent(4) */
+    const TaxScore = ({ score, onClick }) => {
+      const LEVELS = ['Neutral', 'Good', 'Very good', 'Excellent'];
+      const COLORS = {
+        1: '#8b8d96',
+        2: '#2d7dd2',
+        3: '#1a9e5c',
+        4: '#b83b62',
+      };
+      const color = COLORS[score];
+      const label = LEVELS[score - 1];
+      return (
+        <button
+          onClick={onClick}
+          className="flex flex-col gap-2 text-left w-full hover:opacity-80 transition group"
+        >
+          <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)] flex items-center gap-1.5">
+            Tax score
+            <Icon d={ICONS.info} size={12} className="opacity-50 group-hover:opacity-100 transition" style={{ color: 'var(--color-text-muted)' }} />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-end gap-[3px]">
+              {[1, 2, 3, 4].map((lvl) => (
+                <div
+                  key={lvl}
+                  className="w-[10px] rounded-sm transition-all"
+                  style={{
+                    height: 8 + lvl * 4,
+                    background: lvl <= score ? color : 'var(--color-border-mid)',
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-base font-semibold" style={{ color }}>{label}</span>
+          </div>
+        </button>
+      );
+    };
+
+    const SideSummaryIntroWithAction = ({ onStart }) => {
+      const [taxScoreOpen, setTaxScoreOpen] = useState(false);
+      return (
+        <>
+        <aside className="w-[416px] shrink-0 flex flex-col gap-10 pt-4">
+          <div
+            className="bg-white rounded-2xl p-8 flex flex-col gap-6"
+            style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+          >
+            <TaxScore score={2} onClick={() => setTaxScoreOpen(true)} />
+
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+            {/* Eligibility check — answers "is this for me?" before commitment */}
+            <div className="flex flex-col gap-3">
+              <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)]">
+                Is this for me?
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full shrink-0 mt-0.5 flex items-center justify-center" style={{ background: 'var(--color-success-bg)' }}>
+                    <Icon d={ICONS.check} size={10} stroke={3} style={{ color: 'var(--color-success-text)' }} />
+                  </div>
+                  <span className="text-sm text-[var(--color-text-prominent)] leading-5">
+                    You invested in pension savings through your bank or insurer last year
+                  </span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full shrink-0 mt-0.5 flex items-center justify-center" style={{ background: 'var(--color-success-bg)' }}>
+                    <Icon d={ICONS.check} size={10} stroke={3} style={{ color: 'var(--color-success-text)' }} />
+                  </div>
+                  <span className="text-sm text-[var(--color-text-prominent)] leading-5">
+                    You have a fiscal attest 281.60 from your bank or insurer (or can get one)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Button variant="primary" className="w-full" onClick={onStart}>Get started</Button>
+            <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-[var(--color-text-default)] font-medium">
+                3 steps · about 2 minutes
+              </div>
+              <button className="text-xs font-medium text-[var(--color-text-default)] underline hover:opacity-70 transition" style={{ textUnderlineOffset: 3 }}>
+                Terms and conditions
+              </button>
+            </div>
+          </div>
+        </aside>
+        {taxScoreOpen && <TaxScoreModal onClose={() => setTaxScoreOpen(false)} />}
+        </>
+      );
+    };
+
+    const BenefitValueCard = ({ onOpenCalc }) => (
+      <div
+        className="rounded-2xl p-6 flex flex-col gap-4"
+        style={{
+          background: 'white',
+          border: '1px solid var(--color-border-light)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        {/* Primary number */}
+        <div>
+          <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)] mb-1.5">
+            Est. net on payslip
+          </div>
+          <div className="ff-display font-bold text-[36px] leading-none tracking-tight tabular-nums text-[var(--color-text-prominent)]">
+            ~€548
+          </div>
+          <div className="text-sm text-[var(--color-text-default)] mt-2 leading-5">
+            from €1,050 invested · optimal 30% government tax tier
+          </div>
+        </div>
+
+        <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+
+        {/* Advantage — given its own label+number prominence, matching modal treatment */}
+        <div>
+          <div className="text-xs font-medium uppercase tracking-[0.06em] mb-1.5" style={{ color: 'var(--color-brand-text)' }}>
+            Your Payflip advantage
+          </div>
+          <div className="flex items-baseline justify-between gap-3">
+            <div>
+              <div className="ff-display font-bold text-[28px] leading-none tracking-tight tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+                +€168
+              </div>
+              <div className="text-sm text-[var(--color-text-default)] mt-1.5 leading-5">
+                vs taking it as cash
+              </div>
+            </div>
+            <button
+              onClick={() => onOpenCalc('advantage')}
+              className="text-sm font-semibold underline hover:opacity-70 transition shrink-0 self-start"
+              style={{ color: 'var(--color-brand-text)', textUnderlineOffset: 3 }}
+            >
+              How is this calculated?
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+
+    const Step = ({ n, title, body }) => (
+      <div className="flex gap-4 items-start">
+        <div
+          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm ff-poppins font-medium"
+          style={{ background: 'var(--color-strong)' }}
+        >
+          {n}
+        </div>
+        <div>
+          <div className="text-base font-medium text-[var(--color-text-prominent)] leading-6">{title}</div>
+          <div className="text-sm text-[var(--color-text-default)] leading-5 mt-0.5">{body}</div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       Screen 2/3 — Upload
+       ========================================================================= */
+    const UploadScreen = ({ file, onFile, onContinue, onBack, onOpenCalc }) => {
+      const [drag, setDrag] = useState(false);
+      const [helpOpen, setHelpOpen] = useState(false);
+      const inputRef = useRef(null);
+
+      const handleFile = (f) => {
+        if (!f) return;
+        // Simulate OCR delay would happen here
+        onFile({
+          name: f.name || 'attest_281_60_2024.pdf',
+          size: f.size ? `${(f.size / 1024).toFixed(2)} kb` : '92.23 kb',
+        });
+      };
+
+      return (
+        <>
+        <FlowFrame stepIndex={0} side={<SideSummary step="upload" amount={0} onOpenCalc={onOpenCalc} />}>
+          <div className="pt-4 pb-6">
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Upload 281.60 fiscal attest</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              Your insurer issues attest 281.60 each <span className="font-medium">April</span>. We'll read your contribution amount from it automatically.
+            </p>
+            {!file && (
+              <button
+                onClick={() => setHelpOpen(true)}
+                className="text-sm underline link-underline mt-2 font-medium ff-poppins hover:opacity-70"
+              >
+                How do I find my fiscal attest?
+              </button>
+            )}
+          </div>
+
+          <div className="pb-6">
+            {!file ? (
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+                onDragLeave={() => setDrag(false)}
+                onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
+                onClick={() => inputRef.current?.click()}
+                className={`rounded-xl border-2 border-dashed cursor-pointer transition ${drag ? 'drop-zone-active' : ''}`}
+                style={{
+                  borderColor: drag ? 'var(--color-primary)' : 'var(--color-border-mid)',
+                  background: drag ? '#fdf5f8' : '#fafafb',
+                  padding: '40px 24px',
+                  minHeight: 160,
+                }}
+              >
+                <div className="flex flex-col items-center justify-center gap-2 text-center">
+                  <Icon d={ICONS.cloudUpload} size={32} className="text-[var(--color-text-default)]" />
+                  <div className="text-base text-[var(--color-text-prominent)]">
+                    <span className="text-[var(--color-text-default)]">Drag and drop file here or </span>
+                    <span className="font-medium underline">choose file to upload</span>
+                  </div>
+                  <div className="text-xs text-[var(--color-text-default)] mt-1">PDF · max 10 MB</div>
+                </div>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="application/pdf,image/*"
+                  className="hidden"
+                  onChange={(e) => handleFile(e.target.files?.[0])}
+                />
+              </div>
+            ) : (
+              <div
+                className="rounded-xl p-4 flex items-center gap-3 anim-reveal"
+                style={{ border: '1px solid var(--color-border-light)', background: 'white', maxWidth: 360 }}
+              >
+                <div
+                  className="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
+                  style={{ background: 'var(--color-strong)', color: 'white' }}
+                >
+                  <Icon d={ICONS.file} size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-medium truncate">{file.name}</div>
+                  <div className="text-xs text-[var(--color-text-default)] mt-0.5">{file.size}</div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onFile(null); }}
+                  className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+                  aria-label="Remove file"
+                >
+                  <Icon d={ICONS.x} size={14} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <FlowActions
+            onBack={onBack}
+            onNext={onContinue}
+            nextDisabled={!file}
+            nextLabel="Continue"
+          />
+        </FlowFrame>
+        {helpOpen && <FiscalAttestHelpModal onClose={() => setHelpOpen(false)} />}
+        </>
+      );
+    };
+
+    /* =========================================================================
+       Screen 4/5 — Verify amount
+       ========================================================================= */
+    const VerifyScreen = ({ amount, onAmount, ocrAmount, onContinue, onBack, onOpenCalc }) => {
+      const [touched, setTouched] = useState(false);
+      const tooHigh = amount > CEILING;
+      const aboveOcr = amount > ocrAmount;
+      const docExceedsCeiling = ocrAmount > CEILING;
+      const showWarning = touched && (tooHigh || aboveOcr);
+
+      return (
+        <FlowFrame stepIndex={1} side={<SideSummary step="verify" amount={amount} onOpenCalc={onOpenCalc} />}>
+          <div className="pt-4 pb-6">
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Verify amount</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              We read this amount from your document. Change it if you'd like to choose less.
+            </p>
+          </div>
+
+          <div className="pb-6 max-w-[440px]">
+            <label className="text-sm font-medium text-[var(--color-text-prominent)] mb-1.5 block">Amount to claim</label>
+            <div
+              className={`flex items-center gap-2 px-4 h-12 rounded-lg bg-white transition ${showWarning ? 'ring-2 ring-amber-300' : ''}`}
+              style={{ border: `1px solid ${showWarning ? 'var(--color-warning-border)' : 'var(--color-border-mid)'}` }}
+            >
+              <span className="text-lg text-[var(--color-text-default)]">€</span>
+              <input
+                type="number"
+                min="0"
+                max="9999"
+                value={amount}
+                onChange={(e) => { setTouched(true); onAmount(Number(e.target.value)); }}
+                className="flex-1 outline-none text-lg tabular-nums bg-transparent"
+              />
+            </div>
+            <div className="text-xs text-[var(--color-text-default)] mt-1.5">
+              Read from your document: €{ocrAmount.toLocaleString('en-BE')}
+            </div>
+
+            {/* Tier indicator — reacts live to amount, shows 30%/25% bracket + optimal badge */}
+            {!showWarning && <TierIndicator amount={amount} />}
+
+            {/* Pre-emptive ceiling explanation when doc value > ceiling */}
+            {docExceedsCeiling && !showWarning && (
+              <div
+                className="mt-3 rounded-lg p-3 flex gap-2.5 items-start"
+                style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}
+              >
+                <Icon d={ICONS.info} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-info-text)' }} />
+                <div className="text-sm leading-5" style={{ color: 'var(--color-info-text)' }}>
+                  Capped at <span className="font-semibold">€{CEILING}</span> — the legal yearly ceiling for pension savings reimbursement.
+                </div>
+              </div>
+            )}
+
+            {showWarning && (
+              <div
+                className="mt-3 rounded-lg p-3 flex gap-2.5 items-start anim-fade"
+                style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)' }}
+              >
+                <Icon d={ICONS.alert} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-warning-text)' }} />
+                <div className="text-sm" style={{ color: 'var(--color-warning-text)' }}>
+                  {tooHigh ? (
+                    <>The yearly ceiling is €{CEILING}. You can only choose up to that amount, even if you invested more.</>
+                  ) : (
+                    <>You've chosen more than what's on your document (€{ocrAmount.toLocaleString('en-BE')}). Please double-check.</>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <FlowActions
+            onBack={onBack}
+            onNext={onContinue}
+            nextDisabled={amount <= 0 || amount > CEILING}
+            nextLabel="Continue"
+          />
+        </FlowFrame>
+      );
+    };
+
+    /* =========================================================================
+       Screen 6 — Choose budget
+       ========================================================================= */
+    const BudgetScreen = ({ amount, primary, secondary, onPrimary, onSecondary, onContinue, onBack, onOpenCalc }) => {
+      // Only Bonus and End of year premium — Bonus tuned low so selections of typical size force a split
+      const POTS = {
+        bonus: { id: 'bonus', label: 'Bonus', remaining: 700, sub: 'Discretionary bonus, paid Dec' },
+        eoy: { id: 'eoy', label: 'End of year premium', remaining: 1450, sub: 'Paid in December' },
+      };
+      // What actually gets deducted from budgets = invested amount + 8.86% employer cost
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const primaryPot = primary ? POTS[primary] : null;
+      const primaryUsed = primaryPot ? Math.min(totalImpact, primaryPot.remaining) : 0;
+      const remaining = totalImpact - primaryUsed;
+      const needsSecondary = remaining > 0;
+
+      // Allow user to freely switch primary — clear secondary if it conflicts
+      const handlePrimary = (id) => {
+        if (id === secondary) onSecondary(null);
+        onPrimary(id);
+      };
+
+      return (
+        <FlowFrame stepIndex={2} side={<SideSummary step="budget" amount={amount} primarySource={primary} secondarySource={secondary} onOpenCalc={onOpenCalc} />}>
+          <div className="pt-4 pb-6">
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Choose where to fund this from</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              Pick a budget to convert into pension savings. You can split across both sources if one isn't enough.
+            </p>
+          </div>
+
+          <div className="pb-6 flex flex-col gap-6">
+            <div>
+              <div className="text-sm font-semibold mb-1">Fund €{totalImpact.toLocaleString('en-BE')} from your budgets</div>
+              <div className="text-xs text-[var(--color-text-default)] mb-3 flex items-center gap-1.5">
+                <Icon d={ICONS.info} size={12} />
+                €{amount.toLocaleString('en-BE')} contribution + €{employerCost.toLocaleString('en-BE')} employer cost (8.86%)
+              </div>
+              <div className="flex flex-col gap-2">
+                {Object.values(POTS).map((p) => (
+                  <RichRadio
+                    key={p.id}
+                    selected={primary === p.id}
+                    onClick={() => handlePrimary(p.id)}
+                    title={p.label}
+                    sub={p.sub}
+                    right={`€${p.remaining.toLocaleString('en-BE')} available`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {primary && needsSecondary && (
+              <div className="anim-reveal">
+                <div className="text-sm font-semibold mb-3">Pay remaining €{remaining.toLocaleString('en-BE')} with</div>
+                <div className="flex flex-col gap-2">
+                  {Object.values(POTS).filter(p => p.id !== primary).map((p) => (
+                    <RichRadio
+                      key={p.id}
+                      selected={secondary === p.id}
+                      onClick={() => onSecondary(p.id)}
+                      title={p.label}
+                      sub={p.sub}
+                      right={`€${p.remaining.toLocaleString('en-BE')} available`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <FlowActions
+            onBack={onBack}
+            onNext={onContinue}
+            nextDisabled={!primary || (needsSecondary && !secondary)}
+            nextLabel="Review choice"
+          />
+        </FlowFrame>
+      );
+    };
+
+    const RichRadio = ({ selected, disabled, onClick, title, sub, right }) => (
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`group flex items-center gap-3 px-4 py-3.5 rounded-xl text-left w-full transition ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+        style={{
+          border: `1.5px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-light)'}`,
+          background: selected ? '#fdf5f8' : 'white',
+        }}
+      >
+        <div
+          className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center"
+          style={{
+            border: `2px solid ${selected ? 'var(--color-primary)' : 'var(--color-border-mid)'}`,
+          }}
+        >
+          {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--color-primary)' }} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-base font-medium leading-6 text-[var(--color-text-prominent)]">{title}</div>
+          <div className="text-xs text-[var(--color-text-default)] leading-4 mt-0.5">{sub}</div>
+        </div>
+        <div className="text-sm font-medium text-[var(--color-text-default)] tabular-nums shrink-0">{right}</div>
+      </button>
+    );
+
+    /* =========================================================================
+       Screen 7 — Review (3 cards)
+       ========================================================================= */
+    const ReviewScreen = ({ amount, file, primary, secondary, tcsAccepted, onTcsToggle, onSubmit, onBack, onEdit, onOpenCalc }) => {
+      const [tcsError, setTcsError] = useState(false);
+      const POTS = {
+        bonus: { id: 'bonus', label: 'Bonus', remaining: 700 },
+        eoy: { id: 'eoy', label: 'End of year premium', remaining: 1450 },
+      };
+      const primaryPot = POTS[primary];
+      const secondaryPot = secondary ? POTS[secondary] : null;
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const primaryUsed = Math.min(totalImpact, primaryPot.remaining);
+      const secondaryUsed = totalImpact - primaryUsed;
+
+      const handleSubmit = () => {
+        if (!tcsAccepted) {
+          setTcsError(true);
+          return;
+        }
+        onSubmit();
+      };
+
+      const sideCard = (
+        <ReviewValueCard
+          amount={amount}
+          file={file}
+          primarySource={primary}
+          secondarySource={secondary}
+          tcsAccepted={tcsAccepted}
+          onTcsToggle={onTcsToggle}
+          onSubmit={handleSubmit}
+          onOpenCalc={onOpenCalc}
+          error={tcsError}
+          onClearError={() => setTcsError(false)}
+        />
+      );
+
+      return (
+        <FlowFrame stepIndex={3} side={sideCard}>
+          <div className="pt-4 pb-6">
+            {/* Desktop-only back link — mobile uses the FlowHeader back arrow */}
+            <button
+              onClick={onBack}
+              className="desktop-only inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-default)] hover:text-[var(--color-text-prominent)] transition mb-4 -ml-1"
+            >
+              <Icon d={ICONS.arrowLeft} size={16} />
+              Back
+            </button>
+            <h1 className="ff-display font-bold text-[28px] leading-9 tracking-tight">Review your choice</h1>
+            <p className="text-sm text-[var(--color-text-default)] mt-2 leading-5 max-w-[640px]">
+              Check everything is right before submitting. The net amount will land on your next payslip.
+            </p>
+          </div>
+
+          <div className="pb-6 flex flex-col gap-3">
+            {/* Card 1: Amount */}
+            <CollapsedCard label="Amount you choose" value={`€${amount.toLocaleString('en-BE')}`} onEdit={() => onEdit('amount')} />
+            {/* Card 2: Document */}
+            <CollapsedCard label="Document" value={file?.name || '—'} onEdit={() => onEdit('document')} />
+            {/* Card 3: Budget — same shell as the cards above */}
+            <div
+              className="rounded-xl px-5 py-4"
+              style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+            >
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">Budget</div>
+                <Button variant="secondary" size="sm" onClick={() => onEdit('budget')}>Edit</Button>
+              </div>
+              <div className="flex flex-col gap-2 text-sm">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[var(--color-text-prominent)]">{primaryPot.label}</span>
+                  <span className="tabular-nums font-medium">€{primaryUsed.toLocaleString('en-BE')}</span>
+                </div>
+                {secondaryPot && (
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[var(--color-text-prominent)]">{secondaryPot.label}</span>
+                    <span className="tabular-nums font-medium">€{secondaryUsed.toLocaleString('en-BE')}</span>
+                  </div>
+                )}
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1.5" />
+                <div className="flex items-baseline justify-between">
+                  <span className="font-semibold text-[var(--color-text-prominent)]">Total impact</span>
+                  <span className="tabular-nums font-semibold text-[var(--color-text-prominent)]">€{totalImpact.toLocaleString('en-BE')}</span>
+                </div>
+                <div className="text-xs text-[var(--color-text-default)] -mt-0.5">
+                  incl. €{employerCost.toLocaleString('en-BE')} employer cost (8.86%)
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline — "What happens after you confirm", gray dots, pre-submission */}
+            <div
+              className="rounded-xl px-5 py-4"
+              style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+            >
+              <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium mb-3">
+                What happens after you confirm
+              </div>
+              <Timeline items={[
+                { state: 'pending', title: 'After you click confirm below', sub: 'Your choice is submitted' },
+                { state: 'pending', title: 'Admin reviews your tax certificate', sub: 'Usually 1–3 working days' },
+                { state: 'pending', title: `~€${netOnPayslip(amount).toLocaleString('nl-BE')} added to your next salary`, sub: 'On approval' },
+              ]} />
+            </div>
+
+          </div>
+        </FlowFrame>
+      );
+    };
+
+    const CollapsedCard = ({ label, value, onEdit }) => (
+      <div
+        className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+        style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+      >
+        <div className="min-w-0">
+          <div className="text-xs text-[var(--color-text-default)] uppercase tracking-wide font-medium">{label}</div>
+          <div className="text-base font-medium mt-0.5 truncate">{value}</div>
+        </div>
+        <Button variant="secondary" size="sm" onClick={onEdit}>Edit</Button>
+      </div>
+    );
+
+    const ProgressBar = ({ used, total }) => {
+      const pct = total > 0 ? Math.min(100, (used / total) * 100) : 0;
+      return (
+        <div
+          className="h-1.5 rounded-full mt-2 overflow-hidden"
+          style={{ background: 'var(--color-surface-hover)' }}
+        >
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${pct}%`, background: 'var(--color-strong)' }}
+          />
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Screen 8/9 — Confirmation dialog & success
+       ========================================================================= */
+    const ConfirmDialog = ({ amount, onConfirm, onCancel }) => (
+      <Modal onClose={onCancel}>
+        <div className="text-center px-2">
+          <h2 className="ff-display font-bold text-2xl leading-tight tracking-tight">Submit your pension savings claim?</h2>
+          <p className="text-sm text-[var(--color-text-default)] mt-3 leading-5">
+            Once submitted, we'll process your claim with HR. You'll see <span className="font-medium text-[var(--color-text-prominent)]">~€{Math.round(amount * 0.57).toLocaleString('en-BE')}</span> net land on your next payslip.
+          </p>
+        </div>
+        <div className="rounded-xl p-4 flex items-start gap-3 mt-5" style={{ background: 'var(--color-surface)' }}>
+          <Icon d={ICONS.info} size={16} className="mt-0.5 shrink-0 text-[var(--color-text-default)]" />
+          <div className="text-xs text-[var(--color-text-default)] leading-4">
+            By submitting, you confirm that the uploaded fiscal attest 281.60 is yours and that the contribution amount has not already been used elsewhere.
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <Button variant="secondary" className="flex-1" onClick={onCancel}>Cancel</Button>
+          <Button variant="primary" className="flex-1" onClick={onConfirm}>Submit choice</Button>
+        </div>
+      </Modal>
+    );
+
+    const SuccessDialog = ({ amount, onClose, onRestart }) => (
+      <Modal onClose={onClose}>
+        <div className="flex flex-col items-center text-center">
+          <div className="relative mb-4 anim-success-pop" style={{ width: 56, height: 56 }}>
+            {/* Expanding ring behind */}
+            <div
+              className="absolute inset-0 rounded-full anim-success-ring"
+              style={{ background: 'var(--color-success-bg)' }}
+            />
+            {/* Static success disc */}
+            <div
+              className="relative w-14 h-14 rounded-full flex items-center justify-center"
+              style={{ background: 'var(--color-success-bg)' }}
+            >
+              <svg
+                width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+                style={{ color: 'var(--color-success-text)' }}
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path className="anim-draw-check" d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="ff-display font-bold text-2xl leading-tight tracking-tight">Claim submitted</h2>
+          <p className="text-sm text-[var(--color-text-default)] mt-3 leading-5 max-w-sm">
+            Your <span className="font-medium text-[var(--color-text-prominent)]">€{amount.toLocaleString('en-BE')}</span> pension savings claim is being processed. You'll see ~€{Math.round(amount * 0.57).toLocaleString('en-BE')} net on your next payslip — usually within 1 pay cycle.
+          </p>
+          <div className="w-full mt-6 flex flex-col gap-2">
+            <Button variant="primary" className="w-full" onClick={onClose}>Got it</Button>
+            <button onClick={onRestart} className="text-sm font-medium text-[var(--color-text-default)] mt-1 hover:opacity-70">
+              Restart prototype
+            </button>
+          </div>
+        </div>
+      </Modal>
+    );
+
+    /* =========================================================================
+       Calculation modal — explains "At a glance" numbers (Cash out vs Via Payflip)
+       Triggered from the three glance cards + "Learn more about calculation" link.
+       ========================================================================= */
+    const CalculationModal = ({ view, amount, onClose }) => {
+      // Math reconciles: payflipNet = cashOutNet + advantage
+      const cashOutNet = Math.round(amount * 0.362);   // €380 for €1,050
+      const advantage = Math.round(amount * 0.16);     // €168 for €1,050
+      const payflipNet = cashOutNet + advantage;       // €548 for €1,050
+      const withholding = amount - payflipNet;         // €502 for €1,050 — single deduction shown on simple views
+
+      const isAdvantage = view === 'advantage';
+
+      const headings = {
+        invest: 'Net reimbursement',
+        reimbursement: 'Net reimbursement',
+        advantage: 'Net advantage',
+      };
+
+      // Small "deduction chip" used in both layouts
+      const DeductionChip = ({ label }) => (
+        <span
+          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-sm font-medium"
+          style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border-light)',
+            color: 'var(--color-text-default)',
+          }}
+        >
+          <span style={{ color: 'var(--color-text-prominent)' }}>−</span>
+          {label}
+        </span>
+      );
+
+      return (
+        <Modal onClose={onClose} maxWidth={520}>
+          <div className="flex items-start justify-between mb-6">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight text-[var(--color-text-prominent)]">
+              {headings[view]}
+            </h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+              aria-label="Close"
+            >
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+
+          {!isAdvantage && (
+            <>
+              <div className="mb-4">
+                <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)] mb-1.5">Amount invested</div>
+                <div className="ff-display font-bold text-[36px] leading-none tracking-tight tabular-nums text-[var(--color-text-prominent)]">
+                  €{amount.toLocaleString('en-BE')}
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-4" />
+
+              <div className="flex items-center justify-between mb-4">
+                <DeductionChip label="Withholding tax" />
+                <span className="ff-display text-base tabular-nums text-[var(--color-text-prominent)]">
+                  −€{withholding.toLocaleString('en-BE')}
+                </span>
+              </div>
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-4" />
+
+              <div className="flex items-baseline justify-between mb-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium uppercase tracking-[0.06em] text-[var(--color-text-default)]">Est. net on payslip</div>
+                  <span className="text-xs text-[var(--color-text-muted)]">Estimate based on your current salary.</span>
+                </div>
+                <span className="ff-display font-bold text-[28px] leading-none tracking-tight tabular-nums text-[var(--color-text-prominent)]">
+                  ~€{payflipNet.toLocaleString('en-BE')}
+                </span>
+              </div>
+
+              <div className="rounded-lg p-3 flex gap-2 items-start" style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}>
+                <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" style={{ color: 'var(--color-info-text)' }} />
+                <p className="text-xs leading-4" style={{ color: 'var(--color-info-text)' }}>
+                  <span className="font-semibold">On top of this:</span> the government gives a separate 30% tax reduction on your contribution when you file your taxes, handled at year-end filing independently of Payflip.
+                </p>
+              </div>
+            </>
+          )}
+
+          {isAdvantage && (
+            <>
+              <p className="text-sm text-[var(--color-text-default)] leading-5 mb-4">
+                Here's why going through Payflip beats taking the same amount in cash.
+              </p>
+              <ComparisonTable cashOutNet={cashOutNet} payflipNet={payflipNet} />
+
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-4" />
+
+              <div className="flex items-baseline justify-between mb-1">
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs font-medium uppercase tracking-[0.06em]" style={{ color: 'var(--color-brand-text)' }}>Your Payflip advantage</div>
+                  <span className="text-xs text-[var(--color-text-muted)]">* Estimate based on your current salary.</span>
+                </div>
+                <span className="ff-display font-bold text-[28px] leading-none tracking-tight tabular-nums" style={{ color: 'var(--color-brand-text)' }}>
+                  +€{advantage.toLocaleString('en-BE')}
+                </span>
+              </div>
+              <p className="text-xs text-[var(--color-text-default)] leading-4 mb-4">
+                The extra you keep by routing through Payflip. Pension savings is exempt from NSSO contributions and earns a 30% personal income tax credit.
+              </p>
+
+              <div className="rounded-lg p-3 flex gap-2 items-start" style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}>
+                <Icon d={ICONS.info} size={13} className="shrink-0 mt-0.5" style={{ color: 'var(--color-info-text)' }} />
+                <p className="text-xs leading-4" style={{ color: 'var(--color-info-text)' }}>
+                  <span className="font-semibold">On top of this:</span> the government also gives a separate 30% tax reduction at year-end filing. That stacks on top of the Payflip advantage shown here.
+                </p>
+              </div>
+            </>
+          )}
+        </Modal>
+      );
+    };
+
+    const ComparisonTable = ({ cashOutNet, payflipNet }) => (
+      <div className="flex flex-col gap-0">
+        {/* Column headers */}
+        <div className="grid grid-cols-[1fr_1px_1fr] mb-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)]">Cash payout</div>
+          <div />
+          <div className="text-xs font-semibold uppercase tracking-[0.06em] pl-4" style={{ color: 'var(--color-brand-text)' }}>Via Payflip</div>
+        </div>
+
+        <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-3" />
+
+        {/* NSSO row */}
+        <div className="grid grid-cols-[1fr_1px_1fr] mb-2.5 items-start">
+          <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-default)]">
+            <span className="font-medium text-[#b91c1c]">−</span> NSSO (13.07%)
+          </div>
+          <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+          <div className="flex items-center gap-1.5 pl-4 text-sm" style={{ color: 'var(--color-success-text)' }}>
+            <Icon d={ICONS.check} size={13} stroke={2.5} />
+            <span className="font-medium">Exempt</span>
+          </div>
+        </div>
+
+        {/* Income tax row */}
+        <div className="grid grid-cols-[1fr_1px_1fr] mb-3 items-center">
+          <div className="flex items-center gap-1.5 text-sm text-[var(--color-text-default)]">
+            <span className="font-medium text-[#b91c1c]">−</span> Income tax
+          </div>
+          <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+          <div className="flex items-center gap-1.5 pl-4 text-sm text-[var(--color-text-default)]">
+            <span className="font-medium text-[#b91c1c]">−</span> Income tax
+          </div>
+        </div>
+
+        <div style={{ height: 1, background: 'var(--color-border-light)' }} className="mb-3" />
+
+        {/* Net result row */}
+        <div className="grid grid-cols-[1fr_1px_1fr] items-baseline">
+          <div className="flex flex-col gap-0.5">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--color-text-muted)]">You receive</div>
+            <div className="ff-display font-bold text-[18px] tabular-nums text-[var(--color-text-muted)]">
+              €{cashOutNet.toLocaleString('en-BE')}
+            </div>
+          </div>
+          <div style={{ width: 1, background: 'var(--color-border-light)', alignSelf: 'stretch' }} />
+          <div className="flex flex-col gap-0.5 pl-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.06em]" style={{ color: 'var(--color-brand-text)' }}>You receive</div>
+            <div className="ff-display font-bold text-[24px] tabular-nums text-[var(--color-text-prominent)]">
+              €{payflipNet.toLocaleString('en-BE')}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       Timeline — used on success and benefit detail screens
+       ========================================================================= */
+    const Timeline = ({ items }) => (
+      <div className="flex flex-col">
+        {items.map((item, i) => (
+          <React.Fragment key={i}>
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 mt-0.5 w-4 h-4 flex items-center justify-center">
+                {item.state === 'done' && (
+                  <Icon d={ICONS.check} size={14} stroke={2.5} style={{ color: 'var(--color-text-prominent)' }} />
+                )}
+                {item.state === 'current' && (
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      background: 'var(--color-success-text)',
+                      boxShadow: '0 0 0 4px rgba(8, 99, 67, 0.15)',
+                    }}
+                  />
+                )}
+                {item.state === 'pending' && (
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ background: 'var(--color-text-muted)' }}
+                  />
+                )}
+              </div>
+              <div className="flex flex-col gap-0.5 pb-0.5">
+                <p
+                  className={`text-sm leading-5 ${item.state === 'current' ? 'font-semibold text-[var(--color-text-prominent)]' : 'font-medium'}`}
+                  style={{
+                    color: item.state === 'current'
+                      ? 'var(--color-text-prominent)'
+                      : item.state === 'done'
+                        ? 'var(--color-text-default)'
+                        : 'var(--color-text-default)',
+                  }}
+                >
+                  {item.title}
+                </p>
+                {item.sub && (
+                  <p className="text-xs leading-4 text-[var(--color-text-muted)]">{item.sub}</p>
+                )}
+              </div>
+            </div>
+            {i < items.length - 1 && (
+              <div
+                className="ml-2 my-1 h-5 w-px"
+                style={{ background: 'var(--color-border-mid)' }}
+              />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+
+    /* =========================================================================
+       Success screen — inline (replaces the success modal)
+       ========================================================================= */
+    const SuccessScreen = ({ amount, onViewClaim, onBackToBenefits }) => {
+      const fmt = (n) => n.toLocaleString('nl-BE');
+      const expectedNet = netOnPayslip(amount);
+      return (
+        <div className="max-w-[600px] mx-auto px-6 pt-16 pb-8">
+          <div className="flex flex-col items-center text-center mb-8">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center mb-6 anim-success-pop relative"
+              style={{ border: '1.5px solid var(--color-success-text)' }}
+            >
+              <div
+                className="absolute inset-0 rounded-full anim-success-ring"
+                style={{ background: 'var(--color-success-bg)' }}
+              />
+              <svg
+                width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ color: 'var(--color-success-text)' }}
+                className="relative"
+              >
+                <path className="anim-draw-check" d="m5 12 5 5L20 7" />
+              </svg>
+            </div>
+            <h1 className="ff-display font-bold text-2xl tracking-tight text-[var(--color-text-prominent)] mb-2">
+              Pension savings submitted!
+            </h1>
+            <div className="ff-display font-bold text-[32px] leading-none tracking-tight tabular-nums text-[var(--color-text-prominent)] mb-1">
+              ~€{fmt(expectedNet)}
+            </div>
+            <p className="text-sm text-[var(--color-text-default)]">
+              on your next payslip · pending admin review
+            </p>
+          </div>
+
+          {/* Advantage chip — consistent with bike lease success, celebrates the Payflip USP */}
+          <AdvantageChip amount={amount} onOpenCalc={() => {}} />
+
+          {/* Timeline card */}
+          <div
+            className="rounded-2xl p-4 flex flex-col gap-3"
+            style={{ border: '1px solid var(--color-border-light)' }}
+          >
+            <div className="text-base font-semibold ff-display">What happens next</div>
+            <Timeline
+              items={[
+                { state: 'done', title: 'Choice submitted', sub: 'Just now' },
+                { state: 'current', title: 'Admin reviews tax certificate' },
+                { state: 'pending', title: `~€${fmt(expectedNet)} added to your next salary`, sub: 'On approval' },
+              ]}
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col gap-2 mt-6">
+            <Button variant="primary" className="w-full" onClick={onViewClaim}>View choice</Button>
+            <Button variant="secondary" className="w-full" onClick={onBackToBenefits}>Back to benefits</Button>
+          </div>
+        </div>
+      );
+    };
+
+    /* =========================================================================
+       Benefit detail screen — what the user sees when returning to a claimed benefit
+       Two states: 'pending' (claim under review) | 'active' (already reimbursed)
+       ========================================================================= */
+    const BenefitDetailScreen = ({ amount, file, primary, secondary, status, onClaimAgain, onCancel, onOpenCalc, onSetStatus }) => {
+      const fmt = (n) => n.toLocaleString('nl-BE');
+      const POTS = {
+        bonus: { label: 'Bonus' },
+        eoy: { label: 'End of year premium' },
+      };
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const expectedNet = netOnPayslip(amount);
+      const taxAdvantage = Math.round(amount * 0.16);
+
+      const timeline = status === 'pending'
+        ? [
+            { state: 'done', title: 'Choice submitted', sub: 'Today, 14:32' },
+            { state: 'current', title: 'Admin reviews tax certificate', sub: 'Usually 1–3 working days' },
+            { state: 'pending', title: `~€${fmt(expectedNet)} added to your next salary`, sub: 'On approval' },
+          ]
+        : [
+            { state: 'done', title: 'Choice submitted', sub: '12 May 2026' },
+            { state: 'done', title: 'Admin approved', sub: '14 May 2026' },
+            { state: 'done', title: `€${fmt(expectedNet)} reimbursed on payslip`, sub: '25 May 2026' },
+          ];
+
+      return (
+        <div className="flow-row flex gap-6 px-6 py-4 max-w-[1248px] mx-auto">
+          <main className="flex-1 max-w-[760px]">
+            {/* Header */}
+            <div className="flex flex-col gap-3 px-5 pt-4 pb-6 relative">
+              <div
+                className="absolute -top-2 -right-8 w-[320px] h-[220px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse at center, rgba(212, 74, 116, 0.10) 0%, rgba(212, 74, 116, 0) 70%)',
+                  filter: 'blur(20px)',
+                }}
+                aria-hidden
+              />
+              <div className="flex items-center gap-3 relative">
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">Pension savings</div>
+                {status === 'pending' && <Pill tone="warning">Pending review</Pill>}
+                {status === 'active' && <Pill tone="success">Active · reimbursed</Pill>}
+              </div>
+              <div className="text-sm font-medium text-[var(--color-text-default)] relative">
+                Reimbursement {status === 'pending' ? '· submitted today' : '· last reimbursed 25 May'}
+              </div>
+              <p className="text-base leading-6 text-[var(--color-text-default)] max-w-[640px] relative">
+                {status === 'pending'
+                  ? "Your choice is being reviewed. You'll see the net amount on your next payslip after approval."
+                  : "Your choice was approved and the net amount has landed on your last payslip. You can submit a new one next year once you receive your new fiscal attest."}
+              </p>
+            </div>
+
+            {/* Status timeline */}
+            <div className="px-5">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+                Status
+              </h2>
+              <div
+                className="rounded-xl p-5"
+                style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+              >
+                <Timeline items={timeline} />
+              </div>
+            </div>
+
+            {/* Claim details */}
+            <div className="px-5 pt-2 pb-6">
+              <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-6" />
+              <h2 className="ff-display font-semibold text-xl tracking-tight mb-4 flex items-center gap-2">
+                <span style={{ color: 'var(--color-brand-text)' }} className="text-base">✦</span>
+                Choice details
+              </h2>
+              <div
+                className="rounded-xl px-5 py-4 flex flex-col gap-2 text-sm"
+                style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+              >
+                <DetailRow label="Amount you chose" value={`€${fmt(amount)}`} />
+                <DetailRow label="Document" value={file?.name || '—'} />
+                <DetailRow label="Funded from" value={primary ? POTS[primary]?.label : '—'} />
+                {secondary && <DetailRow label="+ Remaining from" value={POTS[secondary]?.label} />}
+                <div style={{ height: 1, background: 'var(--color-border-light)' }} className="my-1.5" />
+                <DetailRow label="Total budget impact" value={`€${fmt(totalImpact)}`} bold />
+                <div className="text-xs text-[var(--color-text-default)] -mt-0.5">
+                  incl. €{fmt(employerCost)} employer cost (8.86%)
+                </div>
+              </div>
+            </div>
+
+            {/* Demo state toggle — visible on both desktop and mobile so testers can preview both states */}
+            <div className="px-5 pt-2 pb-6 flex justify-center">
+              <button
+                onClick={() => onSetStatus(status === 'pending' ? 'active' : 'pending')}
+                className="text-xs text-[var(--color-text-muted)] hover:opacity-70 underline"
+              >
+                (demo: switch to {status === 'pending' ? 'active' : 'pending'} state)
+              </button>
+            </div>
+          </main>
+
+          {/* Side panel */}
+          <aside className="w-[416px] shrink-0">
+            <div
+              className="bg-white rounded-2xl p-6 flex flex-col gap-5 sticky top-[80px]"
+              style={{ boxShadow: 'var(--shadow-card)', border: '1px solid var(--color-border-light)' }}
+            >
+              <div>
+                <div className="text-xs text-[var(--color-text-default)] font-medium uppercase tracking-wide mb-1">{status === 'pending' ? 'Expected on next payslip' : 'Net amount received'}</div>
+                <div className="ff-display font-bold text-[28px] leading-9 tracking-tight">
+                  ~€{fmt(expectedNet)}
+                </div>
+              </div>
+
+              {/* Brand advantage callout */}
+              <div
+                className="rounded-xl p-3 flex flex-col gap-1.5"
+                style={{
+                  background: 'linear-gradient(135deg, var(--color-brand-bg) 0%, white 100%)',
+                  border: '1px solid var(--color-brand-bg-deep)',
+                }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Icon d={ICONS.trendingUp} size={14} style={{ color: 'var(--color-brand-text)' }} />
+                  <div
+                    className="text-[11px] font-semibold uppercase tracking-[0.08em]"
+                    style={{ color: 'var(--color-brand-text)' }}
+                  >
+                    Your Payflip advantage
+                  </div>
+                </div>
+                <div className="ff-display font-bold text-2xl leading-tight tracking-tight">
+                  €{fmt(taxAdvantage)}
+                </div>
+                <button
+                  onClick={() => onOpenCalc('advantage')}
+                  className="self-start inline-flex items-center gap-1.5 text-sm font-semibold transition hover:gap-2"
+                  style={{ color: 'var(--color-brand-text)' }}
+                >
+                  See full calculation
+                  <Icon d={ICONS.arrowRight} size={14} />
+                </button>
+              </div>
+
+              {/* Actions — only pending state has an action; active state shows no button */}
+              {status === 'pending' && (
+                <>
+                  <div style={{ height: 1, background: 'var(--color-border-light)' }} />
+                  <Button variant="secondary" className="w-full" onClick={onCancel}>Cancel choice</Button>
+                </>
+              )}
+            </div>
+          </aside>
+        </div>
+      );
+    };
+
+    const DetailRow = ({ label, value, bold }) => (
+      <div className="flex items-baseline justify-between">
+        <span className={bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'text-[var(--color-text-default)]'}>{label}</span>
+        <span className={`tabular-nums ${bold ? 'font-semibold text-[var(--color-text-prominent)]' : 'font-medium text-[var(--color-text-prominent)]'}`}>{value}</span>
+      </div>
+    );
+
+    /* =========================================================================
+       Edit modals — opened from Review screen instead of navigating back
+       ========================================================================= */
+    const EditAmountModal = ({ amount, ocrAmount, onSave, onClose }) => {
+      const [val, setVal] = useState(amount);
+      const tooHigh = val > CEILING;
+      const tooLow = val <= 0;
+      const aboveOcr = val > ocrAmount;
+      const docExceedsCeiling = ocrAmount > CEILING;
+
+      return (
+        <Modal onClose={onClose} maxWidth={460}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Edit amount</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Change the amount you'd like to choose. Capped at the legal yearly ceiling of €{CEILING}.
+          </p>
+
+          <label className="text-sm font-medium text-[var(--color-text-prominent)] mb-1.5 block">Amount to claim</label>
+          <div
+            className={`flex items-center gap-2 px-4 h-12 rounded-lg bg-white transition ${tooHigh || aboveOcr ? 'ring-2 ring-amber-300' : ''}`}
+            style={{ border: `1px solid ${tooHigh || aboveOcr ? 'var(--color-warning-border)' : 'var(--color-border-mid)'}` }}
+          >
+            <span className="text-lg text-[var(--color-text-default)]">€</span>
+            <input
+              type="number" min="0" max="9999"
+              value={val}
+              onChange={(e) => setVal(Number(e.target.value))}
+              className="flex-1 outline-none text-lg tabular-nums bg-transparent"
+              autoFocus
+            />
+          </div>
+          <div className="text-xs text-[var(--color-text-default)] mt-1.5">
+            Read from your document: €{ocrAmount.toLocaleString('en-BE')}
+          </div>
+
+          {docExceedsCeiling && val === Math.min(ocrAmount, CEILING) && (
+            <div
+              className="mt-3 rounded-lg p-3 flex gap-2.5 items-start"
+              style={{ background: 'var(--color-info-bg)', border: '1px solid #c9d4f7' }}
+            >
+              <Icon d={ICONS.info} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-info-text)' }} />
+              <div className="text-xs leading-4" style={{ color: 'var(--color-info-text)' }}>
+                Capped at €{CEILING} (legal yearly ceiling for pension savings reimbursement).
+              </div>
+            </div>
+          )}
+
+          {(tooHigh || aboveOcr) && (
+            <div
+              className="mt-3 rounded-lg p-3 flex gap-2.5 items-start anim-reveal"
+              style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)' }}
+            >
+              <Icon d={ICONS.alert} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-warning-text)' }} />
+              <div className="text-sm" style={{ color: 'var(--color-warning-text)' }}>
+                {tooHigh ? (<>The yearly ceiling is €{CEILING}. You can only choose up to that amount.</>) : (<>You've chosen more than what's on your document (€{ocrAmount.toLocaleString('en-BE')}). Please double-check.</>)}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button variant="primary" className="flex-1" disabled={tooHigh || tooLow} onClick={() => { onSave(val); onClose(); }}>
+              Save
+            </Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    const EditDocumentModal = ({ file, onSave, onClose }) => {
+      const [draft, setDraft] = useState(file);
+      const [drag, setDrag] = useState(false);
+      const inputRef = useRef(null);
+
+      const handleFile = (f) => {
+        if (!f) { setDraft(null); return; }
+        setDraft({
+          name: f.name || 'attest_281_60_2024.pdf',
+          size: f.size ? `${(f.size / 1024).toFixed(2)} kb` : '92.23 kb',
+        });
+      };
+
+      return (
+        <Modal onClose={onClose} maxWidth={520}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Replace document</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Replace the fiscal attest 281.60 we read your contribution amount from.
+          </p>
+
+          {!draft ? (
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
+              onClick={() => inputRef.current?.click()}
+              className={`rounded-xl border-2 border-dashed cursor-pointer transition ${drag ? 'drop-zone-active' : ''}`}
+              style={{
+                borderColor: drag ? 'var(--color-primary)' : 'var(--color-border-mid)',
+                background: drag ? '#fdf5f8' : '#fafafb',
+                padding: '32px 20px',
+              }}
+            >
+              <div className="flex flex-col items-center justify-center gap-2 text-center">
+                <Icon d={ICONS.cloudUpload} size={28} className="text-[var(--color-text-default)]" />
+                <div className="text-sm">
+                  <span className="text-[var(--color-text-default)]">Drag and drop file here or </span>
+                  <span className="font-medium underline">choose file</span>
+                </div>
+              </div>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="application/pdf,image/*"
+                className="hidden"
+                onChange={(e) => handleFile(e.target.files?.[0])}
+              />
+            </div>
+          ) : (
+            <div
+              className="rounded-xl p-4 flex items-center gap-3 anim-reveal"
+              style={{ border: '1px solid var(--color-border-light)', background: 'white' }}
+            >
+              <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0" style={{ background: 'var(--color-strong)', color: 'white' }}>
+                <Icon d={ICONS.file} size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-base font-medium truncate">{draft.name}</div>
+                <div className="text-xs text-[var(--color-text-default)] mt-0.5">{draft.size}</div>
+              </div>
+              <button
+                onClick={() => setDraft(null)}
+                className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+                aria-label="Remove file"
+              >
+                <Icon d={ICONS.x} size={14} />
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button variant="primary" className="flex-1" disabled={!draft} onClick={() => { onSave(draft); onClose(); }}>
+              Save
+            </Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    const EditBudgetModal = ({ amount, primary, secondary, onSave, onClose }) => {
+      const POTS = {
+        bonus: { id: 'bonus', label: 'Bonus', remaining: 700, sub: 'Discretionary bonus, paid Dec' },
+        eoy: { id: 'eoy', label: 'End of year premium', remaining: 1450, sub: 'Paid in December' },
+      };
+      const employerCost = Math.round(amount * EMPLOYER_COST);
+      const totalImpact = amount + employerCost;
+      const [p, setP] = useState(primary);
+      const [s, setS] = useState(secondary);
+      const primaryPot = p ? POTS[p] : null;
+      const primaryUsed = primaryPot ? Math.min(totalImpact, primaryPot.remaining) : 0;
+      const remaining = totalImpact - primaryUsed;
+      const needsSecondary = remaining > 0;
+
+      const handlePrimary = (id) => {
+        if (id === s) setS(null);
+        setP(id);
+      };
+
+      const canSave = p && (!needsSecondary || s);
+
+      return (
+        <Modal onClose={onClose} maxWidth={560}>
+          <div className="flex items-start justify-between mb-1">
+            <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Edit budget allocation</h2>
+            <button onClick={onClose} className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]" aria-label="Close">
+              <Icon d={ICONS.x} size={16} />
+            </button>
+          </div>
+          <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+            Pick a budget to convert into pension savings. Split if one isn't enough.
+          </p>
+
+          <div className="text-sm font-semibold mb-1">Fund €{totalImpact.toLocaleString('en-BE')} from your budgets</div>
+          <div className="text-xs text-[var(--color-text-default)] mb-3 flex items-center gap-1.5">
+            <Icon d={ICONS.info} size={12} />
+            €{amount.toLocaleString('en-BE')} contribution + €{employerCost.toLocaleString('en-BE')} employer cost (8.86%)
+          </div>
+          <div className="flex flex-col gap-2 mb-4">
+            {Object.values(POTS).map((pot) => (
+              <RichRadio
+                key={pot.id}
+                selected={p === pot.id}
+                onClick={() => handlePrimary(pot.id)}
+                title={pot.label}
+                sub={pot.sub}
+                right={`€${pot.remaining.toLocaleString('en-BE')} available`}
+              />
+            ))}
+          </div>
+
+          {p && needsSecondary && (
+            <div className="anim-reveal">
+              <div className="text-sm font-semibold mb-3">Pay remaining €{remaining.toLocaleString('en-BE')} with</div>
+              <div className="flex flex-col gap-2">
+                {Object.values(POTS).filter((pot) => pot.id !== p).map((pot) => (
+                  <RichRadio
+                    key={pot.id}
+                    selected={s === pot.id}
+                    onClick={() => setS(pot.id)}
+                    title={pot.label}
+                    sub={pot.sub}
+                    right={`€${pot.remaining.toLocaleString('en-BE')} available`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button variant="primary" className="flex-1" disabled={!canSave} onClick={() => { onSave({ primary: p, secondary: needsSecondary ? s : null }); onClose(); }}>
+              Save
+            </Button>
+          </div>
+        </Modal>
+      );
+    };
+
+    /* =========================================================================
+       Fiscal attest help modal — explains where to find the 281.60 document
+       ========================================================================= */
+    const FiscalAttestHelpModal = ({ onClose }) => (
+      <Modal onClose={onClose} maxWidth={520}>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Where to find your 281.60 attest</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+            aria-label="Close"
+          >
+            <Icon d={ICONS.x} size={16} />
+          </button>
+        </div>
+        <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+          You'll typically receive your fiscal attest 281.60 in March, covering last year's pension savings contributions.
+        </p>
+
+        {/* Where to find it */}
+        <div className="mb-5">
+          <h3 className="text-sm font-semibold text-[var(--color-text-prominent)] mb-2">Where to find it</h3>
+          <ul className="flex flex-col gap-2 text-sm text-[var(--color-text-default)] leading-5">
+            <li className="flex gap-2">
+              <span style={{ color: 'var(--color-text-muted)' }}>•</span>
+              <span>Your <span className="font-medium text-[var(--color-text-prominent)]">bank or insurer's app</span></span>
+            </li>
+            <li className="flex gap-2">
+              <span style={{ color: 'var(--color-text-muted)' }}>•</span>
+              <span>Online banking, usually under <span className="font-medium text-[var(--color-text-prominent)]">"Documents"</span></span>
+            </li>
+            <li className="flex gap-2">
+              <span style={{ color: 'var(--color-text-muted)' }}>•</span>
+              <span>
+                <a
+                  href="https://www.mypension.be"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-[var(--color-text-prominent)] underline hover:opacity-70"
+                >
+                  MyPension.be
+                </a>
+                {' '}or your eBox
+              </span>
+            </li>
+            <li className="flex gap-2">
+              <span style={{ color: 'var(--color-text-muted)' }}>•</span>
+              <span>By post if you don't use online banking</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Tax year limits — pulled into a soft callout */}
+        <div
+          className="rounded-lg p-3 mb-2"
+          style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}
+        >
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-default)] mb-2">
+            Tax year 2025 (declaration 2026)
+          </div>
+          <div className="flex flex-col gap-1.5 text-sm">
+            <div className="flex items-baseline justify-between">
+              <span className="text-[var(--color-text-prominent)]">Up to <span className="font-semibold tabular-nums">€1,050</span></span>
+              <span className="text-[var(--color-text-default)]">30% reduction (max €315)</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-[var(--color-text-prominent)]">Up to <span className="font-semibold tabular-nums">€1,350</span></span>
+              <span className="text-[var(--color-text-default)]">25% reduction (max €337.50)</span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-[var(--color-text-default)] leading-4 mt-3">
+          Make sure to use the document labelled <span className="font-medium">281.60</span> — it's the specific one for pension savings.
+        </p>
+      </Modal>
+    );
+
+    /* =========================================================================
+       Cancel claim confirmation dialog
+       ========================================================================= */
+    const CancelClaimDialog = ({ onConfirm, onClose }) => (
+      <Modal onClose={onClose} maxWidth={420}>
+        <div className="flex items-start justify-between mb-1">
+          <h2 className="ff-display font-bold text-[22px] leading-7 tracking-tight">Cancel your choice?</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 -mt-1 -mr-1 rounded-md flex items-center justify-center hover:bg-[var(--color-surface)] text-[var(--color-text-default)]"
+            aria-label="Close"
+          >
+            <Icon d={ICONS.x} size={16} />
+          </button>
+        </div>
+        <p className="text-sm text-[var(--color-text-default)] leading-5 mb-5">
+          Your submission will be removed and your budget allocations released. You can submit a new choice anytime — your fiscal attest stays valid for this tax year.
+        </p>
+        <div className="flex gap-3 mt-6">
+          <Button variant="secondary" className="flex-1" onClick={onClose}>Keep claim</Button>
+          <Button variant="primary" className="flex-1" onClick={onConfirm}>Cancel choice</Button>
+        </div>
+      </Modal>
+    );
+
+    /* =========================================================================
+       Generic Modal helper
+       ========================================================================= */
+    const Modal = ({ children, onClose, maxWidth = 480 }) => (
+      <div className="modal-overlay fixed inset-0 z-40 flex items-center justify-center anim-fade">
+        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+        <div
+          className="modal-card relative bg-white rounded-2xl anim-scale w-full mx-4 flex flex-col"
+          style={{ boxShadow: 'var(--shadow-modal)', maxWidth }}
+        >
+          <div className="p-6 overflow-y-auto">{children}</div>
+        </div>
+      </div>
+    );
+
+    /* =========================================================================
+       Flow frame (stepper + content + sidebar)
+       ========================================================================= */
+    const FlowFrame = ({ side, children }) => (
+      <div className="max-w-[1248px] mx-auto px-6 pt-6 pb-4">
+        <div className="flow-row flex gap-6">
+          <main className="flex-1 max-w-[760px]">{children}</main>
+          {side}
+        </div>
+      </div>
+    );
+
+    const FlowActions = ({ onBack, onNext, nextDisabled, nextLabel }) => (
+      /* Desktop only — mobile uses App-level MobileBottomBar */
+      <div className="flow-actions-desktop pt-4 pb-2 flex items-center gap-3">
+        <Button variant="secondary" onClick={onBack} leftIcon={<Icon d={ICONS.arrowLeft} size={16} />}>Back</Button>
+        <Button variant="primary" onClick={onNext} disabled={nextDisabled} rightIcon={<Icon d={ICONS.arrowRight} size={16} />}>
+          {nextLabel}
+        </Button>
+      </div>
+    );
+
+    /* =========================================================================
+       Moderator panel — for testing only
+       ========================================================================= */
+    const ModeratorPanel = ({ step, onJump, onReset, taskMode, onToggleTask, currentTask, device, onSetDevice }) => {
+      const [open, setOpen] = useState(false);
+      const screenLabels = ['1. Intro', '2. Upload', '3. Verify amount', '4. Choose budget', '5. Review', '6. Success', '7. My benefit'];
+      return (
+        <div className="moderator-panel fixed bottom-4 right-4 z-50 ff-poppins">
+          {open && (
+            <div
+              className="bg-[var(--color-strong)] text-white rounded-xl p-4 mb-2 w-72 anim-fade"
+              style={{ boxShadow: 'var(--shadow-modal)' }}
+            >
+              <div className="text-[11px] uppercase tracking-wider opacity-60 mb-3 font-semibold">Moderator panel</div>
+
+              {/* Device toggle */}
+              <div className="mb-4">
+                <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Device</div>
+                <div className="flex gap-1 bg-white/10 rounded-md p-1">
+                  <button
+                    onClick={() => onSetDevice('desktop')}
+                    className={`flex-1 px-2 py-1 rounded text-xs transition ${device === 'desktop' ? 'bg-white text-[var(--color-strong)] font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    Desktop
+                  </button>
+                  <button
+                    onClick={() => onSetDevice('mobile')}
+                    className={`flex-1 px-2 py-1 rounded text-xs transition ${device === 'mobile' ? 'bg-white text-[var(--color-strong)] font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    Mobile
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1.5 font-semibold">Screen</div>
+              <div className="flex flex-col gap-1.5 mb-4">
+                {screenLabels.map((label, i) => (
+                  <button
+                    key={label}
+                    onClick={() => onJump(i)}
+                    className={`text-left px-3 py-1.5 rounded-md text-xs transition ${step === i ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
+                <label className="flex items-center gap-2 cursor-pointer text-xs">
+                  <input type="checkbox" checked={taskMode} onChange={onToggleTask} />
+                  Show task to participant
+                </label>
+                <button
+                  onClick={onReset}
+                  className="text-left px-3 py-1.5 rounded-md text-xs bg-white/10 hover:bg-white/20 transition"
+                >
+                  ↺ Reset prototype
+                </button>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setOpen(!open)}
+            className="bg-[var(--color-strong)] text-white rounded-full px-4 py-2.5 text-xs font-semibold hover:opacity-90 flex items-center gap-2"
+            style={{ boxShadow: 'var(--shadow-modal)' }}
+          >
+            <Icon d={ICONS.sparkle} size={14} />
+            {open ? 'Hide' : 'Moderator'}
+          </button>
+        </div>
+      );
+    };
+
+    const TaskBanner = ({ task }) => task ? (
+      <div
+        className="sticky top-[60px] z-20 mx-auto max-w-[1248px] px-6 pt-3"
+      >
+        <div
+          className="rounded-xl px-4 py-3 flex items-start gap-3 anim-fade"
+          style={{
+            background: '#fff8e6',
+            border: '1px solid #f4c77d',
+          }}
+        >
+          <Icon d={ICONS.sparkle} size={16} className="mt-0.5 shrink-0" style={{ color: 'var(--color-warning-text)' }} />
+          <div className="text-sm leading-5" style={{ color: 'var(--color-warning-text)' }}>
+            <span className="font-semibold">Task: </span>{task}
+          </div>
+        </div>
+      </div>
+    ) : null;
+
+    /* =========================================================================
+       App — main state machine
+       ========================================================================= */
+    const TASKS = {
+      0: 'You\'ve just heard you can get back some of the money you\'ve been investing in pension savings. Take a look at this page and tell me out loud what you understand. (You can click "See full calculation" to see how the numbers work.)',
+      1: 'You want to start. Upload your fiscal attest. (You\'ll find a sample PDF on the desktop — but feel free to drag any file.)',
+      2: 'The amount has been read from your document. Tell me what you see and adjust if needed.',
+      3: 'You want to fund this benefit. Pick the budget(s) you\'d like to use.',
+      4: 'Take a final look. If everything checks out, submit your choice.',
+      5: 'Tell me what you understand from this screen.',
+      6: 'You\'ve come back to check your benefit later. Tell me what you understand about its current state.',
+    };
+
+    function App() {
+      const [step, setStep] = useState(0);
+      const [prevStep, setPrevStep] = useState(0);
+      const [file, setFile] = useState(null);
+      const [amount, setAmount] = useState(0);
+      const [primary, setPrimary] = useState(null);
+      const [secondary, setSecondary] = useState(null);
+      const [taskMode, setTaskMode] = useState(false);
+      const [calcModalView, setCalcModalView] = useState(null);
+      const [editModal, setEditModal] = useState(null);
+      const [tcsAccepted, setTcsAccepted] = useState(false);
+      const [tcsErrorMobile, setTcsErrorMobile] = useState(false);
+      const [benefitStatus, setBenefitStatus] = useState('pending'); // pending | active
+      const [cancelDialog, setCancelDialog] = useState(false);
+      const [device, setDevice] = useState('desktop');
+      const [bottomDetailsOpen, setBottomDetailsOpen] = useState(false);
+      const ocrAmount = 1450;
+
+      const direction = step >= prevStep ? 'forward' : 'back';
+      useEffect(() => { setPrevStep(step); }, [step]);
+      useEffect(() => { setBottomDetailsOpen(false); }, [step]);
+      useEffect(() => { setTcsErrorMobile(false); }, [step]);
+      const animClass = direction === 'forward' ? 'anim-page-forward' : 'anim-page-back';
+
+      useEffect(() => {
+        if (file && amount === 0) setAmount(Math.min(ocrAmount, CEILING));
+      }, [file]);
+
+      useEffect(() => {
+        if (primary) {
+          const POTS = { bonus: 700, eoy: 1450 };
+          const primaryRemaining = POTS[primary] || 0;
+          const totalImpact = amount + Math.round(amount * EMPLOYER_COST);
+          if (totalImpact <= primaryRemaining) setSecondary(null);
+        }
+      }, [primary, amount]);
+
+      const reset = () => {
+        setStep(0); setFile(null); setAmount(0); setPrimary(null); setSecondary(null);
+        setTcsAccepted(false); setBenefitStatus('pending');
+      };
+
+      const jumpTo = (i) => {
+        setStep(i);
+        if (i >= 1 && !file) setFile({ name: 'attest_281_60_2024.pdf', size: '92.23 kb' });
+        if (i >= 2 && amount === 0) setAmount(1050);
+        if (i >= 3 && !primary) setPrimary('bonus');
+        if (i >= 4 && primary === 'bonus' && amount > 700 && !secondary) setSecondary('eoy');
+        if (i >= 4 && !tcsAccepted) setTcsAccepted(true);
+      };
+
+      const calcAmount = amount > 0 ? amount : 1050;
+
+      // Compute mobile bottom-bar content per step — lightweight info + action pattern
+      const renderMobileBottomBar = () => {
+        if (step === 5) return null; // success has its own buttons in the body
+
+        // Computed values used across multiple steps
+        const totalImpact = amount > 0 ? amount + Math.round(amount * EMPLOYER_COST) : 0;
+        const advantage = amount > 0 ? Math.round(amount * 0.16) : 0;
+        const fmt = (n) => n.toLocaleString('en-BE');
+
+        if (step === 0) {
+          // Intro — ceiling-based value preview, no specific user amount yet
+          return (
+            <BottomBarSplit
+              infoTop="Invest €1,050 · 30% tier"
+              infoMain="~€548 net"
+              infoSub="+€168 vs taking as cash"
+              action={<Button variant="primary" className="w-full" onClick={() => setStep(1)}>Choose this benefit</Button>}
+            />
+          );
+        }
+
+        if (step === 1) {
+          // Upload — amount unknown until file dropped; just helper + button
+          return (
+            <BottomBarSplit
+              helper={file ? 'Ready to continue' : 'Upload your fiscal attest'}
+              action={<Button variant="primary" className="w-full" onClick={() => setStep(2)} disabled={!file}>Continue</Button>}
+            />
+          );
+        }
+
+        if (step === 2) {
+          // Verify — amount confirmed, but no budget chosen yet. Show only the advantage
+          // as a motivation/value moment. Budget impact comes in next step where it's actionable.
+          return (
+            <BottomBarSplit
+              infoTop="Net advantage estimated"
+              infoMain={`+€${fmt(advantage)}`}
+              infoSub="vs. taking this as cash"
+              action={<Button variant="primary" className="w-full" onClick={() => setStep(3)} disabled={amount <= 0}>Continue</Button>}
+            />
+          );
+        }
+
+        if (step === 3) {
+          const POTS = { bonus: 700, eoy: 1450 };
+          const primaryRem = primary ? POTS[primary] : 0;
+          const needsSecondary = primary && totalImpact > primaryRem;
+          const ready = primary && (!needsSecondary || secondary);
+          return (
+            <>
+              {bottomDetailsOpen && <BottomBarDetailsPanel amount={amount} />}
+              <div className="flex items-center gap-6">
+                <div className="flex-1 flex flex-col justify-center min-h-[48px] gap-0.5 min-w-0">
+                  <div className="text-[11px] font-medium text-[var(--color-text-default)] tracking-[0.04em] uppercase">
+                    Pay from budgets
+                  </div>
+                  <div className="ff-display font-semibold text-xl leading-7 tracking-tight text-[var(--color-text-prominent)]">
+                    €{fmt(totalImpact)}
+                  </div>
+                  <DetailsToggle open={bottomDetailsOpen} onToggle={() => setBottomDetailsOpen(!bottomDetailsOpen)} />
+                </div>
+                <div className="flex-1">
+                  <Button variant="primary" className="w-full" onClick={() => setStep(4)} disabled={!ready}>
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            </>
+          );
+        }
+
+        if (step === 4) {
+          return (
+            <>
+              {bottomDetailsOpen && <BottomBarDetailsPanel amount={amount} />}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-end">
+                  <DetailsToggle open={bottomDetailsOpen} onToggle={() => setBottomDetailsOpen(!bottomDetailsOpen)} />
+                </div>
+                <Checkbox
+                  checked={tcsAccepted}
+                  onChange={(v) => { setTcsAccepted(v); if (v) setTcsErrorMobile(false); }}
+                  id="tcs-accept-mobile"
+                >
+                  I accept the{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="underline link-underline hover:opacity-70"
+                  >
+                    terms & conditions
+                  </button>.
+                </Checkbox>
+                {tcsErrorMobile && (
+                  <div
+                    className="flex items-start gap-1.5 text-xs anim-reveal"
+                    style={{ color: 'var(--color-warning-text)' }}
+                  >
+                    <Icon d={ICONS.info} size={12} className="mt-0.5 shrink-0" />
+                    <span>Please accept the terms and conditions to continue.</span>
+                  </div>
+                )}
+                <Button
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => {
+                    if (!tcsAccepted) { setTcsErrorMobile(true); return; }
+                    setStep(5);
+                  }}
+                >
+                  Submit choice
+                </Button>
+              </div>
+            </>
+          );
+        }
+
+        if (step === 6) {
+          if (benefitStatus === 'active') return null; // active state has no action; header pill shows status
+          return (
+            <BottomBarSplit
+              infoTop="Status"
+              infoMain="Pending"
+              infoSub="Submitted today"
+              action={
+                <Button variant="secondary" className="w-full" onClick={() => setCancelDialog(true)}>Cancel</Button>
+              }
+            />
+          );
+        }
+
+        return null;
+      };
+
+      const appContent = (
+        <>
+          <TopNav active="Benefits" />
+          {/* Mobile flow header (back button only) — bottom nav is intentionally hidden in this focused flow */}
+          {step !== 5 && (
+            <MobileFlowHeader
+              onBack={
+                step === 0
+                  ? null
+                  : step === 6
+                    ? () => setStep(0)
+                    : () => setStep(step - 1)
+              }
+            />
+          )}
+          {taskMode && <TaskBanner task={TASKS[step]} />}
+
+          {/* Persistent stepper — Upload/Verify/Budget only. Review is a commit moment, not a form step. */}
+          {step >= 1 && step <= 3 && (
+            <div className="max-w-[1248px] mx-auto px-6 pt-4 stepper-shell">
+              <Stepper current={step - 1} />
+            </div>
+          )}
+
+          {/* Scroll area on mobile (flex:1, contains all screens). On desktop it's a passthrough. */}
+          <div className="mobile-scroll-area">
+            <div key={step} className={animClass}>
+            {step === 0 && <IntroScreen onStart={() => setStep(1)} onOpenCalc={setCalcModalView} device={device} />}
+            {step === 1 && (
+              <UploadScreen
+                file={file}
+                onFile={setFile}
+                onContinue={() => setStep(2)}
+                onBack={() => setStep(0)}
+                device={device}
+                onOpenCalc={setCalcModalView}
+              />
+            )}
+            {step === 2 && (
+              <VerifyScreen
+                amount={amount}
+                ocrAmount={ocrAmount}
+                onAmount={setAmount}
+                onContinue={() => setStep(3)}
+                onBack={() => setStep(1)}
+                device={device}
+                onOpenCalc={setCalcModalView}
+              />
+            )}
+            {step === 3 && (
+              <BudgetScreen
+                amount={amount}
+                primary={primary}
+                secondary={secondary}
+                onPrimary={setPrimary}
+                onSecondary={setSecondary}
+                onContinue={() => setStep(4)}
+                onBack={() => setStep(2)}
+                device={device}
+                onOpenCalc={setCalcModalView}
+              />
+            )}
+            {step === 4 && (
+              <ReviewScreen
+                amount={amount}
+                file={file}
+                primary={primary}
+                secondary={secondary}
+                tcsAccepted={tcsAccepted}
+                onTcsToggle={setTcsAccepted}
+                onSubmit={() => setStep(5)}
+                onBack={() => setStep(3)}
+                onEdit={setEditModal}
+                onOpenCalc={setCalcModalView}
+                device={device}
+              />
+            )}
+            {step === 5 && (
+              <SuccessScreen
+                amount={amount}
+                onViewClaim={() => { setBenefitStatus('pending'); setStep(6); }}
+                onBackToBenefits={() => setStep(0)}
+              />
+            )}
+            {step === 6 && (
+              <BenefitDetailScreen
+                amount={amount}
+                file={file}
+                primary={primary}
+                secondary={secondary}
+                status={benefitStatus}
+                onClaimAgain={reset}
+                onCancel={() => setCancelDialog(true)}
+                onOpenCalc={setCalcModalView}
+                onSetStatus={setBenefitStatus}
+                device={device}
+              />
+            )}
+            </div>
+          </div>
+
+          {/* App-level mobile bottom bar — pinned at bottom of phone frame via flex layout */}
+          {renderMobileBottomBar() && (
+            <MobileBottomBar>
+              {renderMobileBottomBar()}
+            </MobileBottomBar>
+          )}
+
+          {/* Edit modals (open from review) */}
+          {editModal === 'amount' && (
+            <EditAmountModal
+              amount={amount}
+              ocrAmount={ocrAmount}
+              onSave={(v) => setAmount(v)}
+              onClose={() => setEditModal(null)}
+            />
+          )}
+          {editModal === 'document' && (
+            <EditDocumentModal
+              file={file}
+              onSave={(f) => setFile(f)}
+              onClose={() => setEditModal(null)}
+            />
+          )}
+          {editModal === 'budget' && (
+            <EditBudgetModal
+              amount={amount}
+              primary={primary}
+              secondary={secondary}
+              onSave={({ primary: p, secondary: s }) => { setPrimary(p); setSecondary(s); }}
+              onClose={() => setEditModal(null)}
+            />
+          )}
+
+          {/* Cancel claim confirmation */}
+          {cancelDialog && (
+            <CancelClaimDialog
+              onConfirm={() => { setCancelDialog(false); reset(); }}
+              onClose={() => setCancelDialog(false)}
+            />
+          )}
+
+          {/* Calculation modal — overlays everything */}
+          {calcModalView && (
+            <CalculationModal
+              view={calcModalView}
+              amount={calcAmount}
+              onClose={() => setCalcModalView(null)}
+            />
+          )}
+        </>
+      );
+
+      return (
+        <>
+          {device === 'mobile' ? (
+            <div className="min-h-screen flex justify-center pt-10 pb-32" style={{ background: '#f3f4f6' }}>
+              <div className="device-bezel">
+                <div className="device-screen mobile-mode">
+                  {appContent}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="min-h-screen bg-white pb-32">
+              {appContent}
+            </div>
+          )}
+
+          <ModeratorPanel
+            step={step}
+            onJump={jumpTo}
+            onReset={reset}
+            taskMode={taskMode}
+            onToggleTask={() => setTaskMode(!taskMode)}
+            device={device}
+            onSetDevice={setDevice}
+          />
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
